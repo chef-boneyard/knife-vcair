@@ -12,18 +12,23 @@ class Chef
 
         def initialize(options = {})
           # TODO - Add cloud specific auth params to be passed to fog connection. See knife-openstack for real life example.
+          Chef::Log.debug("vchs_username #{Chef::Config[:knife][:vchs_username]}")
+          Chef::Log.debug("vchs_api_url] #{Chef::Config[:knife][:vchs_api_url]}")
+
+          # TODO -build username
+
           super(options.merge({
                               :auth_params => {
-                                :provider => 'vchs',
-                                :vchs_username => Chef::Config[:knife][:vchs_username],
-                                :vchs_api_key => Chef::Config[:knife][:vchs_password],
-                                :vchs_auth_url => Chef::Config[:knife][:vchs_auth_url],
-                                :vchs_endpoint_type => Chef::Config[:knife][:vchs_endpoint_type],
-                                :vchs_tenant => Chef::Config[:knife][:vchs_tenant],
-                                :connection_options => {
-                                  :ssl_verify_peer => !Chef::Config[:knife][:vchs_insecure]
-                                }
+                                :provider => 'vclouddirector',
+                                :vcloud_director_username => Chef::Config[:knife][:vchs_username],
+                                :vcloud_director_password => Chef::Config[:knife][:vchs_password],
+                                :vcloud_director_host => Chef::Config[:knife][:vchs_api_url],
+                                :vcloud_director_api_version => '5.6'
                 }}))
+        end
+
+        def add_api_endpoint
+          @auth_params.merge!({:vchs_api_url => Chef::Config[:knife][:vchs_api_url]}) unless Chef::Config[:knife][:api_endpoint].nil?
         end
 
       end

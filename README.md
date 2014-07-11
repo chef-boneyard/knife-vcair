@@ -25,7 +25,7 @@ In order to communicate with an vCHS API you will need to tell Knife your vCHS A
 
 If your knife.rb file will be checked into a SCM system (ie readable by others) you may want to read the values from environment variables.
 
-    knife[:vchs_api_url] = "#{ENV['VCHS_AUTH_URL']}"
+    knife[:vchs_api_url] = "#{ENV['VCHS_API_URL']}"
     knife[:vchs_username] = "#{ENV['VCHS_USERNAME']}"
     knife[:vchs_password] = "#{ENV['VCHS_PASSWORD']}"
 

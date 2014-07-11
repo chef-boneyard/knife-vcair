@@ -17,8 +17,7 @@ class Chef
         end
 
         def validate!
-          # TODO - update these as per your cloud. Validating auth params defined in service options
-          super(:vchs_username, :vchs_password, :vchs_auth_url)
+          super(:vchs_username, :vchs_password, :vchs_api_url)
         end
       end
     end
