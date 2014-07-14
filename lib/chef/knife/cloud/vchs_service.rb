@@ -13,14 +13,15 @@ class Chef
         def initialize(options = {})
           # TODO - Add cloud specific auth params to be passed to fog connection. See knife-openstack for real life example.
           Chef::Log.debug("vchs_username #{Chef::Config[:knife][:vchs_username]}")
-          Chef::Log.debug("vchs_api_url] #{Chef::Config[:knife][:vchs_api_url]}")
+          Chef::Log.debug("vchs_org #{Chef::Config[:knife][:vchs_org]}")
+          Chef::Log.debug("vchs_api_url #{Chef::Config[:knife][:vchs_api_url]}")
 
-          # TODO -build username
+          username = "#{Chef::Config[:knife][:vchs_username]}@#{Chef::Config[:knife][:vchs_org]}"
 
           super(options.merge({
                               :auth_params => {
                                 :provider => 'vclouddirector',
-                                :vcloud_director_username => Chef::Config[:knife][:vchs_username],
+                                :vcloud_director_username => username,
                                 :vcloud_director_password => Chef::Config[:knife][:vchs_password],
                                 :vcloud_director_host => Chef::Config[:knife][:vchs_api_url],
                                 :vcloud_director_api_version => '5.6'
