@@ -30,39 +30,28 @@ class Chef
         banner "knife vchs network list (options)"
 
         def query_resource
-          begin
-          @service.connection.organizations
-
-          rescue Excon::Errors::BadRequest => e
-            response = Chef::JSONCompat.from_json(e.response.body)
-            ui.fatal("Unknown server error (#{response['badRequest']['code']}): #{response['badRequest']['message']}")
-            raise e
-          end
+          @service.connection.organizations.get_by_name(Chef::Config[:knife][:vchs_org]).networks
         end
 
-      	def list(organizations)
-          network_list = [
-            ui.color('Name', :bold),
-            ui.color('Gateway', :bold),
-            ui.color('IP Range Start', :bold),
-            ui.color('End', :bold),
-            ui.color('Description', :bold),
+        def before_exec_command
+          @columns_with_info = [
+            {:label => 'Name', :key => 'name'},
+            {:label => 'Gateway', :key => 'gateway'},
+            {:label => 'IP Range Start', :key => 'ip_ranges', :value_callback => method(:start_address) },
+            {:label => 'End', :key => 'ip_ranges', :value_callback => method(:end_address) },
+            {:label => 'Description', :key => 'description'}
           ]
-          org = organizations.get_by_name(Chef::Config[:knife][:vchs_org])
-          networks = org.networks.all
-          if networks
-            networks.all.sort_by(&:name).each do |network|
-              network_list << network.name
-              network_list << network.gateway
-              network_list << network.ip_ranges[0][:start_address]
-              network_list << network.ip_ranges[0][:end_address]
-              network_list << network.description
-            end
-          end
-        puts ui.list(network_list, :uneven_columns_across, 5)
+          @sort_by_field = "name"
+        end
+
+        def start_address(ranges)
+          ranges[0][:start_address]
+        end
+
+        def end_address(ranges)
+          ranges[0][:end_address]
         end
       end
-
     end
   end
 end
