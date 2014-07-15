@@ -7,6 +7,24 @@ Please refer to the [CHANGELOG](CHANGELOG.md) for version history and known issu
 
 # Installation #
 
+## Current Source Build Instructions: ##
+
+This plugin currently depends on the unreleased knife-cloud gem. To install it check out the source from https://github.com/opscode/knife-cloud. To install it, run:
+
+    $ gem build knife-cloud.gemspec
+    $ gem install knife-cloud-0.0.1.gem
+
+Then build and install this gem, run:
+
+    $ gem build knife-vchs.gemspec
+    $ gem install knife-vchs-0.1.0.gem
+
+or if you are using the Chef Development Kit (Chef DK), to install it run:
+
+    $ chef gem install knife-vchs-0.1.0.gem
+
+## Future Rubygems Instructions: ##
+
 This plugin is distributed as a Ruby Gem. To install it, run:
 
     $ gem install knife-vchs
@@ -17,25 +35,28 @@ If you are using the Chef Development Kit (Chef DK), to install it run:
 
 # Configuration #
 
-In order to communicate with an vCHS API you will need to tell Knife your vCHS API endpoint, your username and password. The easiest way to accomplish this is to create these entries in your `knife.rb` file:
+In order to communicate with an vCHS API you will need to tell Knife your vCHS API endpoint, username, password and organization. The easiest way to accomplish this is to create these entries in your `knife.rb` file:
 
     knife[:vchs_api_url] = 'vchs.example.com'
     knife[:vchs_username] = 'Your vCHS username'
     knife[:vchs_password] = 'Your vCHS password'
+    knife[:vchs_org] = 'Your vCHS organization'
 
 If your knife.rb file will be checked into a SCM system (ie readable by others) you may want to read the values from environment variables.
 
     knife[:vchs_api_url] = "#{ENV['VCHS_API_URL']}"
     knife[:vchs_username] = "#{ENV['VCHS_USERNAME']}"
     knife[:vchs_password] = "#{ENV['VCHS_PASSWORD']}"
+    knife[:vchs_org] = "#{ENV['VCHS_ORG']}"
 
 ## VMware's vCHS ##
 
-If you are using VMware's hosted vCHS the API URL is found by logging into the https://vchs.vmware.com, and clicking on your Dashboard's Virtual Data Center. On the right under "Related Links" click on the "vCloud Director API URL" and copy that value. It should look something like `https://p3v11-vcd.vchs.vmware.com:443/cloud/org/M511664989-4904/` From this we will tak our base API URL `p3v11-vcd.vchs.vmware.com` and get our organization `M511664989-4904` that is appended to our https://vchs.vmware.com login, giving us the values:
+If you are using VMware's hosted vCHS the API URL is found by logging into the https://vchs.vmware.com, and clicking on your Dashboard's Virtual Data Center. On the right under "Related Links" click on the "vCloud Director API URL" and copy that value. It should look something like `https://p3v11-vcd.vchs.vmware.com:443/cloud/org/M511664989-4904/` From this we will take our base API URL `p3v11-vcd.vchs.vmware.com` and get our organization `M511664989-4904` that is appended to our https://vchs.vmware.com login, giving us the values:
 
     knife[:vchs_api_url] = 'p3v11-vcd.vchs.vmware.com'
-    knife[:vchs_username] = 'user@somedomain.com@m511664989-4904'
+    knife[:vchs_username] = 'user@somedomain.com
     knife[:vchs_password] = 'VCHSSECRET'
+    knife[:vchs_org] = 'M511664989-4904'
 
 # knife vchs subcommands #
 
