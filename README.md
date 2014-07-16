@@ -73,11 +73,19 @@ No "flavor list"
 
 ## knife vchs nat_rules list ##
 
+List the Network Address Translation (NAT) rules modifying the source/destination IP Addresses or packets arriving to and leaving from the vCHS organization network.
+
 ## knife vchs firewall_rules list ##
+
+The list of firewall rules configured for the current vCHS organization network.
 
 ## knife vchs networks list ##
 
+Lists the networks available to the current vCHS organization.
+
 ## knife vchs public_ips list ##
+
+The list of public IP Addresses provided and allocated for the current vCHS organization network.
 
 # License #
 
