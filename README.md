@@ -63,29 +63,36 @@ If you are using VMware's hosted vCHS the API URL is found by logging into the h
 This plugin provides the following Knife subcommands. Specific command options can be found by invoking the subcommand with a `--help` option.
 
 ## knife vchs server create OR knife vchs vm create ##
-No "flavor list"
+
+**TODO** Provisions a new vCHS server and bootstraps it with Chef. `knife vchs vm create` is the same command if the term 'vm' is preferred over 'server'.
 
 ## knife vchs server delete OR knife vchs vm delete ##
 
+**TODO** Delete a vCHS server. `knife vchs vm delete` is the same command if the term 'vm' is preferred over 'server'. **PLEASE NOTE** - this does not delete the associated node and client objects from the Chef server without using the `-P` option to purge the client.
+
 ## knife vchs server list OR knife vchs vm list ##
+
+List the currently deployed vCHS servers by their vAPP. `knife vchs vm list` is the same command if the term 'vm' is preferred over 'server'.
 
 ## knife vchs image list OR knife vchs template list ##
 
-## knife vchs nat_rules list ##
+List the available vCHS templates or images that may be used for deploying VMs.
 
-List the Network Address Translation (NAT) rules modifying the source/destination IP Addresses or packets arriving to and leaving from the vCHS organization network.
-
-## knife vchs firewall_rules list ##
-
-The list of firewall rules configured for the current vCHS organization network.
-
-## knife vchs networks list ##
+## knife vchs network list ##
 
 Lists the networks available to the current vCHS organization.
 
-## knife vchs public_ips list ##
+## knife vchs nat list ##
 
-The list of public IP Addresses provided and allocated for the current vCHS organization network.
+**TODO** List the Network Address Translation (NAT) rules modifying the source/destination IP Addresses or packets arriving to and leaving from the vCHS organization network.
+
+## knife vchs firewall list ##
+
+**TODO** The list of firewall rules configured for the current vCHS organization network.
+
+## knife vchs ip list ##
+
+**TODO** The list of public IP Addresses provided and allocated for the current vCHS organization network.
 
 # License #
 
