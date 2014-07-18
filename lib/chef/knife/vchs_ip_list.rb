@@ -23,11 +23,11 @@ require 'chef/knife/cloud/vchs_service_options'
 class Chef
   class Knife
     class Cloud
-      class VchsNetworkList < ResourceListCommand
+      class VchsIpList < ResourceListCommand
         include VchsHelpers
         include VchsServiceOptions
 
-        banner "knife vchs network list (options)"
+        banner "knife vchs ip list (options)"
 
         def query_resource
           @service.connection.organizations.get_by_name(Chef::Config[:knife][:vchs_org]).networks
@@ -51,6 +51,7 @@ class Chef
         def end_address(ranges)
           ranges[0][:end_address]
         end
+
       end
     end
   end
