@@ -68,7 +68,7 @@ This plugin provides the following Knife subcommands. Specific command options c
 
 ## knife vchs server delete OR knife vchs vm delete ##
 
-**TODO** Delete a vCHS server. `knife vchs vm delete` is the same command if the term 'vm' is preferred over 'server'. **PLEASE NOTE** - this does not delete the associated node and client objects from the Chef server without using the `-P` option to purge the client.
+Delete a vCHS VM from the vAPP. `knife vchs vm delete` is the same command if the term 'vm' is preferred over 'server'. **PLEASE NOTE** - this does not delete the associated node and client objects from the Chef server without using the `-P` option to purge the client.
 
 ## knife vchs server list OR knife vchs vm list ##
 
