@@ -34,20 +34,14 @@ class Chef
 
         def execute_command
           vdc = @service.connection.organizations.get_by_name(Chef::Config[:knife][:vchs_org]).vdcs.first
-          # get the vapps or get_by_id?
-
-          # @name_args.each do |server_name|
-          #   @service.delete_server(server_name) # FIX THIS COMMAND
-
-          # find the specific vms vms.get_single_vm(vm_id)
-          # do we need to write vm.get_by_name, are names unique?
-          # it looks like we're just deleting by vAPP... what?
-          # do we need to do anything else? power_off?
-
-          #   delete_from_chef(server_name)
-          # end
+          @name_args.each do |server_name|
+            vapp = vdc.vapps.get_by_name(server_name)
+            vapp.power_off
+            vapp.undeploy
+            vapp.destroy
+            delete_from_chef(server_name)
+          end
         end
-
       end
     end
   end
