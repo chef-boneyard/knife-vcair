@@ -16,17 +16,32 @@
 # limitations under the License.
 #
 
-require 'chef/knife/vchs_vm_delete'
+require 'chef/knife/cloud/server/delete_options'
+require 'chef/knife/cloud/server/delete_command'
+require 'chef/knife/cloud/vchs_service'
 require 'chef/knife/cloud/vchs_service_options'
+require 'chef/knife/vchs_helpers'
 
 class Chef
   class Knife
     class Cloud
-      class VchsServerDelete < VchsVmDelete
+      class VchsVmDelete < ServerDeleteCommand
+        include ServerDeleteOptions
         include VchsServiceOptions
+        include VchsHelpers
 
-        banner "knife vchs server delete INSTANCEID [INSTANCEID] (options)"
+        banner "knife vchs vm delete INSTANCEID [INSTANCEID] (options)"
 
+        def execute_command
+          vdc = @service.connection.organizations.get_by_name(Chef::Config[:knife][:vchs_org]).vdcs.first
+          @name_args.each do |server_name|
+            vapp = vdc.vapps.get_by_name(server_name)
+            vapp.power_off
+            vapp.undeploy
+            vapp.destroy
+            delete_from_chef(server_name)
+          end
+        end
       end
     end
   end
