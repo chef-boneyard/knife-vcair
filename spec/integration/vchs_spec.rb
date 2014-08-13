@@ -39,56 +39,63 @@ describe 'knife-vchs' do
   before(:all) { init_test }
   after(:all) { cleanup_test_data }
   context 'gem' do
-    context 'build' do
-      let(:command) { "gem build knife-vchs.gemspec" }
-      it 'should succeed' do
-        match_status("should succeed")
-      end
-    end
+    #context 'build' do
+    #  let(:command) { "gem build knife-vchs.gemspec" }
+    #  it 'should succeed' do
+    #    match_status("should succeed")
+    #  end
+    #end
 
-    context 'install ' do
-      let(:command) { "gem install " + get_gem_file_name  } 
-      it 'should succeed' do
-        match_status("should succeed")
-      end
-    end
+    #context 'install ' do
+    #  let(:command) { "gem install " + get_gem_file_name  } 
+    #  it 'should succeed' do
+    #    match_status("should succeed")
+    #  end
+    #end
 
     describe 'knife' do
-      context 'vcloud' do
-        context 'image list --help' do
-         let(:command) { "knife vcloud image list --help" } 
-           it 'should succeed' do
-            should have_outcome :stdout => /--help/
-          end
-        end
-        context 'network list --help' do
-         let(:command) { "knife vcloud network list --help" } 
-           it 'should succeed' do
-            should have_outcome :stdout => /--help/
-          end
-        end
+      #context 'vcloud' do
+      #  context 'image list --help' do
+      #   let(:command) { "knife vcloud image list --help" } 
+      #     it 'should succeed' do
+      #      should have_outcome :stdout => /--help/
+      #    end
+      #  end
+      #  context 'network list --help' do
+      #   let(:command) { "knife vcloud network list --help" } 
+      #     it 'should succeed' do
+      #      should have_outcome :stdout => /--help/
+      #    end
+      #  end
 
-        context 'server create --help' do
-         let(:command) { "knife vcloud server create --help" } 
-           it 'should succeed' do
-            should have_outcome :stdout => /--help/
-          end
-        end
+      #  context 'server create --help' do
+      #   let(:command) { "knife vcloud server create --help" } 
+      #     it 'should succeed' do
+      #      should have_outcome :stdout => /--help/
+      #    end
+      #  end
 
-        context 'server delete --help' do
-         let(:command) { "knife vcloud server delete --help" } 
-           it 'should succeed' do
-            should have_outcome :stdout => /--help/
-          end
-        end
+      #  context 'server create --help' do
+      #   let(:command) { "knife vchs server create" } 
+      #     it 'should succeed' do
+      #      should have_outcome :stdout => /--help/
+      #    end
+      #  end
 
-        context 'server list --help' do
-         let(:command) { "knife vcloud server list --help" } 
-           it 'should succeed' do
-            should have_outcome :stdout => /--help/
-          end
-        end
-      end      
+      #  context 'server delete --help' do
+      #   let(:command) { "knife vcloud server delete --help" } 
+      #     it 'should succeed' do
+      #      should have_outcome :stdout => /--help/
+      #    end
+      #  end
+
+      #  context 'server list --help' do
+      #   let(:command) { "knife vcloud server list --help" } 
+      #     it 'should succeed' do
+      #      should have_outcome :stdout => /--help/
+      #    end
+      #  end
+      #end      
     end
 
     context 'uninstall ' do

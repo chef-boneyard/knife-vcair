@@ -14,4 +14,5 @@ group :development do
   gem 'knife-windows', :git => 'https://github.com/opscode/knife-windows.git'
   #gem 'activesupport'
   gem 'rspec-instafail'
+  gem 'debugger'
 end

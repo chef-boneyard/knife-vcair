@@ -35,7 +35,7 @@ end
 
 describe Chef::Knife::Cloud::VchsServerCreate do
   before(:each) do
-    @knife_vchs_create = #Chef::Knife::Cloud::VchsServerCreate.new
+    @knife_vchs_create = Chef::Knife::Cloud::VchsServerCreate.new
     @knife_vchs_create.stub(:tcp_test_ssh).and_return(true)
     @knife_vchs_create.stub(:tcp_test_winrm).and_return(true)
     {

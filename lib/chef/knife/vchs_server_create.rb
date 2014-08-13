@@ -18,8 +18,166 @@ class Chef
         include VchsServerCreateOptions
         include VchsServiceOptions
 
+        deps do
+          require 'chef/knife/winrm_base'
+          require 'winrm'
+          require 'em-winrm'
+          require 'chef/json_compat'
+          require 'chef/knife/bootstrap'
+          require 'chef/knife/bootstrap_windows_winrm'
+          require 'chef/knife/core/windows_bootstrap_context'
+          require 'chef/knife/winrm'
+          Chef::Knife::Bootstrap.load_deps
+        end
 
         banner "knife vchs server create (options)"
+
+        def tcp_test_ssh(hostname, port)
+          tcp_socket = TCPSocket.new(hostname, port)
+          readable = IO.select([tcp_socket], nil, nil, 5)
+          if readable
+            Chef::Log.debug("sshd accepting connections on #{hostname}, banner is #{tcp_socket.gets}")
+            yield
+            true
+          else
+            false
+          end
+        rescue Errno::ETIMEDOUT
+          false
+        rescue Errno::EPERM
+          false
+        rescue Errno::ECONNREFUSED
+          sleep 2
+          false
+        rescue Errno::EHOSTUNREACH
+          sleep 2
+          false
+       rescue Errno::ENETUNREACH
+          sleep 2
+          false
+       rescue Errno::ECONNRESET
+          sleep 2
+          false
+        ensure
+          tcp_socket && tcp_socket.close
+        end
+
+        def tcp_test_winrm(hostname, port)
+          TCPSocket.new(hostname, port)
+          yield
+          true
+        rescue SocketError
+          sleep 2
+          false
+        rescue Errno::ETIMEDOUT
+          false
+        rescue Errno::EPERM
+          false
+        rescue Errno::ECONNREFUSED
+          sleep 2
+          false
+        rescue Errno::EHOSTUNREACH
+          sleep 2
+          false
+        rescue Errno::ENETUNREACH
+          sleep 2
+          false
+        end
+
+        def run
+          # NOTE: This code is for exploring vchs and not meant to be run as a whole script
+          #
+
+          require 'dotenv'
+
+          Dotenv.load unless ENV['VCLOUD_DIRECTOR_USERNAME']
+
+          conn = Fog::Compute::VcloudDirector.new(
+            :vcloud_director_username => ENV['VCLOUD_DIRECTOR_USERNAME']+'@'+ENV['VCLOUD_DIRECTOR_ORG'],
+            :vcloud_director_password => ENV['VCLOUD_DIRECTOR_PASSWORD'],
+            :vcloud_director_host => ENV['VCLOUD_DIRECTOR_HOST'],
+            :vcloud_director_api_version => '5.6')
+
+          # connect to the virtual data center (vdc)
+          vdc = conn.organizations.first.vdcs.first
+          org = conn.organizations.first
+          public_catalog = conn.organizations.first.catalogs.last
+          net = conn.organizations.first.networks.last
+
+          # create new system (just like a physical system was built for you)
+          vname = 'vdemo11-' + rand.to_s
+
+          ## NOTE: ubuntu seems to not use customizaton (script nor setting password) also no ssh with password
+          #template = public_catalog.catalog_items.get_by_name('Ubuntu Server 12.04 LTS (amd64 20140619)')
+          #
+          template = public_catalog.catalog_items.get_by_name('CentOS64-64bit')
+          net = conn.organizations.first.networks.find { |n| n if n.name.match("routed$")  }
+          template.instantiate(vname, vdc_id: vdc.id, network_id: net.id, description: vname + ' Desc')
+
+          vapp_new = vdc.vapps.get_by_name(vname)
+          vm_new = vapp_new.vms.first
+
+          # Define network connection for vm based on existing routed network
+          network_config = vapp_new.network_config.find { |n| n if n[:networkName].match("routed$") }
+          networks_config = [network_config]
+
+          # networks_config = vapp_new.network_config
+          section = {PrimaryNetworkConnectionIndex: 0}
+          section[:NetworkConnection] = networks_config.compact.each_with_index.map do |network, i|
+            connection = {
+              network: network[:networkName],
+              needsCustomization: true,
+              NetworkConnectionIndex: i,
+              IsConnected: true
+            }
+            ip_address      = network[:ip_address]
+            #allocation_mode = network[:allocation_mode]
+            #allocation_mode = 'manual' if ip_address
+            #allocation_mode = 'dhcp' unless %w{dhcp manual pool}.include?(allocation_mode)
+            #allocation_mode = 'POOL'
+            allocation_mode = 'pool'
+            connection[:IpAddressAllocationMode] = allocation_mode.upcase
+            connection[:IpAddress] = ip_address if ip_address
+            connection
+          end
+
+          ## attach the network to the vm
+          nc_task = conn.put_network_connection_system_section_vapp(vm_new.id,section).body
+          conn.process_task(nc_task)
+
+
+          # TODO: 
+          #section = "gateway NAT rule here"
+          #nc_task = conn.post_edge_gateway_configuration(vm_new.id,section).body
+          #conn.process_task(nc_task)
+
+          ## Must be done before first power on.
+          c=vm_new.customization
+          c.admin_password_auto = false # auto
+          # c.admin_password_auto = true # auto
+          c.admin_password = ENV['VCLOUD_VM_ADMIN_PASSWORD']
+          c.reset_password_required = false
+          #c.customization_script = "sed -ibak 's/^PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config"
+          c.script = "#!/bin/sh\ntouch /tmp/wedidit\nsed -ibak 's/^PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config"
+          # system name via hostname
+          c.computer_name = 'DEV-' + Time.now.to_s.gsub(" ","-").gsub(":","-")
+          c.enabled = true
+
+          c.save
+
+          # power up box for the first time.
+          vm_new.power_on
+
+          # # Refresh attributes for vm object to look at in IRB
+          # vm_new.reload
+
+          # # Show all the good stuff
+          # vm_new.network
+          # vm_new.customization.admin_password
+          # vm_new.status
+          # vm_new.ip_address
+          # vm_new.customization.admin_password
+        end
 
         def before_exec_command
             # setup the create options
