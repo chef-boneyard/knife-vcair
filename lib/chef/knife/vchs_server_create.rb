@@ -107,8 +107,6 @@ class Chef
             :vcloud_director_host => host,
             :vcloud_director_api_version => api_version)
 
-         #debugger
-
          # connect to the virtual data center (vdc)
          # get vcd, org, catalog list, network
          vdc = conn.organizations.first.vdcs.first
@@ -157,8 +155,6 @@ class Chef
           connection[:IpAddress] = ip_address if ip_address
           connection
         end
-
-        debugger
 
         ## attach the network to the vm
         nc_task = conn.put_network_connection_system_section_vapp(vm_new.id,section).body
