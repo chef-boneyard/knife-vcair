@@ -95,103 +95,139 @@ class Chef
 
           #Dotenv.load unless ENV['VCLOUD_DIRECTOR_USERNAME']
 
+          # TODO: validate required params
+          #
           # initialize vchs with secrets
-          uname = locate_config_value(:vchs_username)
-          pw = locate_config_value(:vchs_password)
-          org = locate_config_value(:vchs_org)
-          host = locate_config_value(:vchs_host)
-          api_version = locate_config_value(:vchs_api_version)
+          uname = locate_config_value(:vchs_username) # required
+          pw = locate_config_value(:vchs_password) # required
+          org_name = locate_config_value(:vchs_org) # required
+          vdc_name = locate_config_value(:vchs_vdc) # TODO: make required maybe?
+          host = locate_config_value(:vchs_host) # required
+          api_version = locate_config_value(:vchs_api_version) # optional
+          catalog_item = locate_config_value(:vchs_catalog_item) # required
+          vname = locate_config_value(:vchs_vm_name) # optional
+
+          ## connect to the virtual data center (vdc)
           conn = Fog::Compute::VcloudDirector.new(
-            :vcloud_director_username => uname + '@'+ org,
+            :vcloud_director_username => uname + '@'+ org_name,
             :vcloud_director_password => pw,
             :vcloud_director_host => host,
             :vcloud_director_api_version => api_version)
 
-         # connect to the virtual data center (vdc)
-         # get vcd, org, catalog list, network
-         vdc = conn.organizations.first.vdcs.first
-         org = conn.organizations.first
-         public_catalog = conn.organizations.first.catalogs.last
-         # probably not needed, get this again below
-         net = conn.organizations.first.networks.last
+          # TODO: handle non found org.
+          # NOTE: On connection your org is specified along with the username and you seem to only have one org (.first might be enough)
+          org = conn.organizations.get_by_name(org_name)
 
-        #  # create new system (just like a physical system was built for you)
-        vname = 'vdemo11-' + rand.to_s
+          # TODO: make this work with multiple VDCs
+          # TODO: add test for vdc_name nil
+          vdc = vdc_name.nil? ? org.vdcs.first : org.vdcs.get_by_name(vdc_name)
 
-        ## NOTE: ubuntu seems to not use customizaton (script nor setting password) also no ssh with password
-        #template = public_catalog.catalog_items.get_by_name('Ubuntu Server 12.04 LTS (amd64 20140619)')
-        # get catalog (os type)
-        template = public_catalog.catalog_items.get_by_name('CentOS64-64bit')
-        # routed nework is the default network
-        net = conn.organizations.first.networks.find { |n| n if n.name.match("routed$")  }
-        # create the template/vname
-        template.instantiate(vname, vdc_id: vdc.id, network_id: net.id, description: vname + ' Desc')
-        # create new application (might be a set of vms) based on vname
-        vapp_new = vdc.vapps.get_by_name(vname)
-        # get a vm instance from the vapp
-        #vm_new = vapp_new.vms.first
-        vm_new = vapp_new.vms.find {|v| v.vapp_name == vname }
+          # TODO make this work with multiple catalog list 
+          # loop through all catalogs and find the one that matches the string passed in ie centos
+          #if  conn.organizations.contains
+          #public_catalog = conn.organizations.first.catalogs.last
+          #public_catalog = org.catalogs.last
 
-        # Define network connection for vm based on existing routed network
-        network_config = vapp_new.network_config.find { |n| n if n[:networkName].match("routed$") }
-        networks_config = [network_config]
+          # TODO make this work with multiple networks
+          # TODO: allow specifying network name to find or default to routed
+          #       E.g. network_name = locate_config_value(:network_name) || Regex.new("routed$")
+          # Using routed nework by default
+          net = org.networks.find { |n| n if n.name.match("routed$")  }
 
-        # networks_config = vapp_new.network_config
-        section = {PrimaryNetworkConnectionIndex: 0}
-        section[:NetworkConnection] = networks_config.compact.each_with_index.map do |network, i|
-          connection = {
-            network: network[:networkName],
-            needsCustomization: true,
-            NetworkConnectionIndex: i,
-            IsConnected: true
-          }
-          ip_address      = network[:ip_address]
-          #allocation_mode = network[:allocation_mode]
-          #allocation_mode = 'manual' if ip_address
-          #allocation_mode = 'dhcp' unless %w{dhcp manual pool}.include?(allocation_mode)
-          #allocation_mode = 'POOL'
-          allocation_mode = 'pool'
-          connection[:IpAddressAllocationMode] = allocation_mode.upcase
-          connection[:IpAddress] = ip_address if ip_address
-          connection
-        end
+          #  # create new system (just like a physical system was built for you)
+          #vname = 'vdemo11-' + rand.to_s
 
-        ## attach the network to the vm
-        nc_task = conn.put_network_connection_system_section_vapp(vm_new.id,section).body
-        conn.process_task(nc_task)
+          ## NOTE: ubuntu seems to not use customizaton (script nor setting password) also no ssh with password
+          #template = public_catalog.catalog_items.get_by_name('Ubuntu Server 12.04 LTS (amd64 20140619)')
+          # get catalog (os type)
+          #template = public_catalog.catalog_items.get_by_name('CentOS64-64bit')
+          #template = public_catalog.catalog_items.get_by_name(catalog_item)
+          #
+          ## TODO: find by catalog item ID
+          ## TODO: add option to search just public and/or private catalogs
+          ## Search through all catalogs to find first matching
+          template = org.catalogs.map{|cat| cat.catalog_items.get_by_name(catalog_item)}.compact.first
+
+          # TODO: look into adding a vm to an existing vapp
+          # create the new vapp
+          template.instantiate(vname, vdc_id: vdc.id, network_id: net.id, description: vname)
+
+          vapp_new = vdc.vapps.get_by_name(vname)
+          # get a vm instance from the vapp based on the vname
+          vm_new = vapp_new.vms.find {|v| v.vapp_name == vname }
 
 
-        # TODO: 
-        #section = "gateway NAT rule here"
-        #nc_task = conn.post_edge_gateway_configuration(vm_new.id,section).body
-        #conn.process_task(nc_task)
+          ## TODO: move all networking to some helper for use in other knife vcsh commands
 
-        ## Initialization before first power on.
-        c=vm_new.customization
-        c.admin_password_auto = false # auto
-        # c.admin_password_auto = true # auto
-        c.admin_password = ENV['VCLOUD_VM_ADMIN_PASSWORD']
-        c.reset_password_required = false
-        #c.customization_script = "sed -ibak 's/^PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config"
-        c.script = "#!/bin/sh\ntouch /tmp/wedidit\nsed -ibak 's/^PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config"
-        # system name via hostname
-        c.computer_name = 'DEV-' + Time.now.to_s.gsub(" ","-").gsub(":","-")
-        c.enabled = true
+          ## TODO: allow user to specify network to connect to (see above net used)
+          # Define network connection for vm based on existing routed network
+          network_config = vapp_new.network_config.find { |n| n if n[:networkName].match("routed$") }
+          networks_config = [network_config]
 
-        c.save
+          # networks_config = vapp_new.network_config
+          section = {PrimaryNetworkConnectionIndex: 0}
+          section[:NetworkConnection] = networks_config.compact.each_with_index.map do |network, i|
+            connection = {
+              network: network[:networkName],
+              needsCustomization: true,
+              NetworkConnectionIndex: i,
+              IsConnected: true
+            }
+            ip_address      = network[:ip_address]
+            #allocation_mode = network[:allocation_mode]
+            #allocation_mode = 'manual' if ip_address
+            #allocation_mode = 'dhcp' unless %w{dhcp manual pool}.include?(allocation_mode)
+            #allocation_mode = 'POOL'
 
-        # power up box for the first time.
-        vm_new.power_on
+            ## TODO: support config options for allocation mode
+            allocation_mode = 'pool'
+            connection[:IpAddressAllocationMode] = allocation_mode.upcase
+            connection[:IpAddress] = ip_address if ip_address
+            #connection[:Dns1] = dns1 if dns1
+            connection
+          end
 
-        #  # # Refresh attributes for vm object to look at in IRB
-        #  # vm_new.reload
+          ## attach the network to the vm
+          nc_task = conn.put_network_connection_system_section_vapp(vm_new.id,section).body
+          conn.process_task(nc_task)
 
-        #  # # Show all the good stuff
-        #  # vm_new.network
-        #  # vm_new.customization.admin_password
-        #  # vm_new.status
-        #  # vm_new.ip_address
-        #  # vm_new.customization.admin_password
+          # TODO: Add NAT rules optionally?
+          #section = "gateway NAT rule here"
+          #nc_task = conn.post_edge_gateway_configuration(vm_new.id,section).body
+          #conn.process_task(nc_task)
+
+          ## Initialization before first power on.
+          c=vm_new.customization
+          c.admin_password_auto = false # default auto
+          # c.admin_password_auto = true # auto
+          #
+          ## TODO: take password from config/options
+          #c.admin_password = ENV['VCLOUD_VM_ADMIN_PASSWORD']
+          c.admin_password = SecureRandom.base64(15)
+          c.reset_password_required = false
+
+          ## TODO: make customizaton_script pull from config/command options if available
+          #c.customization_script = "sed -ibak 's/^PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config"
+          #c.script = "#!/bin/sh\ntouch /tmp/wedidit\nsed -ibak 's/^PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config"
+          # system name via hostname
+          #c.computer_name = 'DEV-' + Time.now.to_s.gsub(" ","-").gsub(":","-")
+          c.computer_name = vname.gsub(/\W/,"-")
+          c.enabled = true
+
+          c.save
+
+          # power up box for the first time.
+          vm_new.power_on
+
+          # Refresh attributes for vm object to look at in IRB
+          vm_new.reload
+
+          # Show all the good stuff
+          pp vm_new.network
+          pp vm_new.customization.admin_password
+          pp vm_new.status
+          pp vm_new.ip_address
+          pp vm_new.customization.admin_password
         end
 
         def before_exec_command

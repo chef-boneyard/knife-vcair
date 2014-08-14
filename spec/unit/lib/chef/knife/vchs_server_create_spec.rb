@@ -21,7 +21,6 @@ require 'fog'
 require 'chef/knife/bootstrap'
 require 'chef/knife/bootstrap_windows_winrm'
 
-
 def vcloud_director
   @vcloud_director ||= Fog::Compute::VcloudDirector.new(
     :connection_options => {
@@ -32,6 +31,7 @@ def vcloud_director
   )
 end
 
+## TODO: make sure variables are consistent for VCHS/Vcloud Director.. etc
 
 describe Chef::Knife::Cloud::VchsServerCreate do
   before(:each) do
@@ -44,6 +44,9 @@ describe Chef::Knife::Cloud::VchsServerCreate do
       :vchs_username => ENV['VCLOUD_DIRECTOR_USERNAME'] || 'vchs_username',
       :vchs_host => ENV['VCLOUD_DIRECTOR_HOST'] || 'vchs_host',
       :vchs_org => ENV['VCLOUD_DIRECTOR_ORG'] || 'vchs_org',
+      :vchs_catalog_item => ENV['VCLOUD_CATALOG_ITEM'] || 'vchs_catalog_item',
+       
+      :vchs_vm_name => ((ENV['VCLOUD_VMNAME']).nil? ? ('TESTING-KNIFE' + rand.to_s) : (ENV['VCLOUD_VMNAME']) + rand.to_s),
       :vchs_api_version => '5.6',
       :chef_node_name => 'chef_node_name',
     }.each do |key, value|

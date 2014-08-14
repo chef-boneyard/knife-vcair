@@ -24,6 +24,10 @@ require 'chef/knife/vchs_helpers'
 # require 'em-winrm'
 require 'chef'
 require 'fog'
+require 'dotenv'
+#Dotenv.load unless ENV['VCLOUD_DIRECTOR_USERNAME']
+Dotenv.load
+
 
 # require 'chef/knife/vcloud_base'
 # require 'chef/knife/vcloud_server_create'

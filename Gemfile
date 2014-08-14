@@ -15,4 +15,7 @@ group :development do
   #gem 'activesupport'
   gem 'rspec-instafail'
   gem 'debugger'
+  gem 'pry-debugger'
+  gem 'pry-stack_explorer'
+  gem 'dotenv'
 end
