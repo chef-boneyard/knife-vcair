@@ -16,7 +16,7 @@
 # limitations under the License.
 #
 
-require File.expand_path('../../spec_helper', __FILE__)
+require File.expand_path('../../../../../spec_helper', __FILE__)
 require 'fog'
 require 'chef/knife/bootstrap'
 require 'chef/knife/bootstrap_windows_winrm'
@@ -54,6 +54,17 @@ describe Chef::Knife::Cloud::VchsServerCreate do
     @knife_vchs_create.stub(:print)
 
     @vchs_connection = double(Fog::Compute::VcloudDirector)
+    #@vchs_org = double(Fog::Compute::VcloudDirector::....
+
+# [  <Fog::Compute::VcloudDirector::Organization
+#     id="5856ae9f-22c7-4453-952a-12868fdce6e4",
+#     name="M511664989-4904",
+#     type="application/vnd.vmware.vcloud.org+xml",
+#     href="https://p3v11-vcd.vchs.vmware.com:443/api/org/5856ae9f-22c7-4453-952a-12868fdce6e4",
+#     description=NonLoaded,
+#     full_name=NonLoaded
+#   >]
+
     @catalog_items = [double(:href => "image", :password_enabled? => true)]
     @catalogs = [double(:href => "catalog", :catalog_items => @catalog_items)]
     @vchs_connection.stub_chain(:catalogs).and_return( @catalogs )
@@ -72,7 +83,7 @@ describe Chef::Knife::Cloud::VchsServerCreate do
 
   describe "run" do
     before do
-      Fog::Compute::VcloudDirector.should_receive(:new).and_return(@vchs_connection)
+      #Fog::Compute::VcloudDirector.should_receive(:new).and_return(@vchs_connection)
       #@vchs_connection.should_receive(:servers).and_return( @vchs_vapps )
       #@vchs_vapps.should_receive(:create).and_return( @new_vapp )
       #@new_vapp.should_receive(:wait_for)
@@ -84,10 +95,11 @@ describe Chef::Knife::Cloud::VchsServerCreate do
     end
 
     it "creates an vapp and bootstraps it" do
+      # TODO: mock out the vchs_connetion completely
       #Fog::Compute::VcloudDirector.should_receive(:new).and_return(@vchs_connection)
       #@new_server.should_receive(:save)
-      #@bootstrap = Chef::Knife::Bootstrap.new
-      #Chef::Knife::Bootstrap.stub(:new).and_return(@bootstrap)
+      @bootstrap = Chef::Knife::Bootstrap.new
+      Chef::Knife::Bootstrap.stub(:new).and_return(@bootstrap)
       #@bootstrap.should_receive(:run)
       @knife_vchs_create.run
     end
