@@ -39,19 +39,19 @@ describe 'knife-vchs' do
   before(:all) { init_test }
   after(:all) { cleanup_test_data }
   context 'gem' do
-    #context 'build' do
+    # context 'build' do
     #  let(:command) { "gem build knife-vchs.gemspec" }
     #  it 'should succeed' do
     #    match_status("should succeed")
     #  end
-    #end
-
-    #context 'install ' do
+    # end
+    #
+    # context 'install ' do
     #  let(:command) { "gem install " + get_gem_file_name  } 
     #  it 'should succeed' do
     #    match_status("should succeed")
     #  end
-    #end
+    # end
 
     describe 'knife' do
       #context 'vcloud' do

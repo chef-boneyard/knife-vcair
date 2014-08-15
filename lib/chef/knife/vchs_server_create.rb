@@ -34,6 +34,70 @@ class Chef
 
         banner "knife vchs server create (options)"
 
+        def before_exec_command
+          # setup the create options
+          # TODO - update this section to define the server_def that should be passed to fog for creating VM. This will be specific to your cloud.
+          # Example:
+          @create_options = {
+            :server_def => {
+              # servers require a name, knife-cloud generates the chef_node_name
+              :name => config[:chef_node_name],
+              :image_ref => locate_config_value(:image),
+              :flavor_ref => locate_config_value(:flavor)
+              #...
+            },
+            :server_create_timeout => locate_config_value(:server_create_timeout)
+          }
+
+            @create_options[:server_def].merge!({:user_data => locate_config_value(:user_data)}) if locate_config_value(:user_data)
+
+            Chef::Log.debug("Create server params - server_def = #{@create_options[:server_def]}")
+
+            # TODO - Update the columns info with the keys and callbacks required as per fog object returned for your cloud. Framework looks for 'key' on your image object hash returned by fog. If you need the values to be formatted or if your value is another object that needs to be looked up use value_callback.
+            # Example:
+            @columns_with_info = [
+              {:label => 'Instance ID', :key => 'id'},
+              {:label => 'Name', :key => 'name'},
+              {:label => 'Public IP', :key => 'addresses', :value_callback => method(:primary_public_ip_address)},
+              {:label => 'Private IP', :key => 'addresses', :value_callback => method(:primary_private_ip_address)},
+              {:label => 'Flavor', :key => 'flavor', :value_callback => method(:get_id)},
+              {:label => 'Image', :key => 'image', :value_callback => method(:get_id)},
+              {:label => 'Keypair', :key => 'key_name'},
+              {:label => 'State', :key => 'state'}
+            ]
+            super
+        end
+
+        def get_id(value)
+          value['id']
+        end
+
+        # Setup the floating ip after server creation.
+        def after_exec_command
+          # Any action you want to perform post VM creation in your cloud.
+          # Example say assigning floating IP to the newly created VM.
+          # Make calls to "service" object if you need any information for cloud, example service.connection.addresses
+          # Make call to "server" object if you want set properties on newly created VM, example server.associate_address(floating_address)
+
+          super
+        end
+
+        def before_bootstrap
+          super
+          # TODO - Set the IP address that should be used for connection with the newly created VM. This IP address is used for bootstrapping the VM and should be accessible from knife workstation.
+
+          # your logic goes here to set bootstrap_ip_address...
+
+          Chef::Log.debug("Bootstrap IP Address: #{bootstrap_ip_address}")
+          if bootstrap_ip_address.nil?
+            error_message = "No IP address available for bootstrapping."
+            ui.error(error_message)
+            raise CloudExceptions::BootstrapError, error_message
+          end
+          config[:bootstrap_ip_address] = bootstrap_ip_address
+        end
+
+
         def tcp_test_ssh(hostname, port)
           tcp_socket = TCPSocket.new(hostname, port)
           readable = IO.select([tcp_socket], nil, nil, 5)
@@ -86,7 +150,7 @@ class Chef
           false
         end
 
-        def run
+        def execute_command
           # NOTE: This code is for exploring vchs and not meant to be run as a whole script
           #
           #
@@ -98,29 +162,24 @@ class Chef
           # TODO: validate required params
           #
           # initialize vchs with secrets
-          uname = locate_config_value(:vchs_username) # required
-          pw = locate_config_value(:vchs_password) # required
-          org_name = locate_config_value(:vchs_org) # required
-          vdc_name = locate_config_value(:vchs_vdc) # TODO: make required maybe?
-          host = locate_config_value(:vchs_host) # required
-          api_version = locate_config_value(:vchs_api_version) # optional
-          catalog_item = locate_config_value(:vchs_catalog_item) # required
-          vname = locate_config_value(:vchs_vm_name) # optional
+          # org_name = locate_config_value(:vchs_org) # required
+          # vdc_name = locate_config_value(:vchs_vdc) # TODO: make required maybe?
 
+          # conn = @service.connection # .organizations.get_by_name(Chef::Config[:knife][:vchs_org]).catalogs
           ## connect to the virtual data center (vdc)
-          conn = Fog::Compute::VcloudDirector.new(
-            :vcloud_director_username => uname + '@'+ org_name,
-            :vcloud_director_password => pw,
-            :vcloud_director_host => host,
-            :vcloud_director_api_version => api_version)
+          # conn = Fog::Compute::VcloudDirector.new(
+          # :vcloud_director_username => uname + '@'+ org_name,
+          # :vcloud_director_password => pw,
+          #  :vcloud_director_host => host,
+          # :vcloud_director_api_version => api_version)
 
           # TODO: handle non found org.
           # NOTE: On connection your org is specified along with the username and you seem to only have one org (.first might be enough)
-          org = conn.organizations.get_by_name(org_name)
+          #org = conn.organizations.get_by_name(org_name)
 
           # TODO: make this work with multiple VDCs
           # TODO: add test for vdc_name nil
-          vdc = vdc_name.nil? ? org.vdcs.first : org.vdcs.get_by_name(vdc_name)
+          # vdc = vdc_name.nil? ? org.vdcs.first : org.vdcs.get_by_name(vdc_name)
 
           # TODO make this work with multiple catalog list 
           # loop through all catalogs and find the one that matches the string passed in ie centos
@@ -132,7 +191,7 @@ class Chef
           # TODO: allow specifying network name to find or default to routed
           #       E.g. network_name = locate_config_value(:network_name) || Regex.new("routed$")
           # Using routed nework by default
-          net = org.networks.find { |n| n if n.name.match("routed$")  }
+          # net = org.networks.find { |n| n if n.name.match("routed$")  }
 
           #  # create new system (just like a physical system was built for you)
           #vname = 'vdemo11-' + rand.to_s
@@ -146,88 +205,42 @@ class Chef
           ## TODO: find by catalog item ID
           ## TODO: add option to search just public and/or private catalogs
           ## Search through all catalogs to find first matching
-          template = org.catalogs.map{|cat| cat.catalog_items.get_by_name(catalog_item)}.compact.first
+          # template = org.catalogs.map{|cat| cat.catalog_items.get_by_name(locate_config_value(:image))}.compact.first
 
           # TODO: look into adding a vm to an existing vapp
           # create the new vapp
-          template.instantiate(vname, vdc_id: vdc.id, network_id: net.id, description: vname)
-
-          vapp_new = vdc.vapps.get_by_name(vname)
+          # vname = locate_config_value(:vchs_vm_name) # optional
+          # template.instantiate(vname, vdc_id: vdc.id, network_id: net.id, description: vname)
+          # vapp_new = vdc.vapps.get_by_name(vname)
           # get a vm instance from the vapp based on the vname
-          vm_new = vapp_new.vms.find {|v| v.vapp_name == vname }
-
+          # vm_new = vapp_new.vms.find {|v| v.vapp_name == vname }
 
           ## TODO: move all networking to some helper for use in other knife vcsh commands
-
-          ## TODO: allow user to specify network to connect to (see above net used)
-          # Define network connection for vm based on existing routed network
-          network_config = vapp_new.network_config.find { |n| n if n[:networkName].match("routed$") }
-          networks_config = [network_config]
-
-          # networks_config = vapp_new.network_config
-          section = {PrimaryNetworkConnectionIndex: 0}
-          section[:NetworkConnection] = networks_config.compact.each_with_index.map do |network, i|
-            connection = {
-              network: network[:networkName],
-              needsCustomization: true,
-              NetworkConnectionIndex: i,
-              IsConnected: true
-            }
-            ip_address      = network[:ip_address]
-            #allocation_mode = network[:allocation_mode]
-            #allocation_mode = 'manual' if ip_address
-            #allocation_mode = 'dhcp' unless %w{dhcp manual pool}.include?(allocation_mode)
-            #allocation_mode = 'POOL'
-
-            ## TODO: support config options for allocation mode
-            allocation_mode = 'pool'
-            connection[:IpAddressAllocationMode] = allocation_mode.upcase
-            connection[:IpAddress] = ip_address if ip_address
-            #connection[:Dns1] = dns1 if dns1
-            connection
-          end
-
-          ## attach the network to the vm
-          nc_task = conn.put_network_connection_system_section_vapp(vm_new.id,section).body
-          conn.process_task(nc_task)
 
           # TODO: Add NAT rules optionally?
           #section = "gateway NAT rule here"
           #nc_task = conn.post_edge_gateway_configuration(vm_new.id,section).body
           #conn.process_task(nc_task)
-
-          ## Initialization before first power on.
-          c=vm_new.customization
-          c.admin_password_auto = false # default auto
-          # c.admin_password_auto = true # auto
-          #
-          ## TODO: take password from config/options
-          #c.admin_password = ENV['VCLOUD_VM_ADMIN_PASSWORD']
-          c.admin_password = SecureRandom.base64(15)
-          c.reset_password_required = false
-
-          ## TODO: make customizaton_script pull from config/command options if available
-          #c.customization_script = "sed -ibak 's/^PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config"
-          #c.script = "#!/bin/sh\ntouch /tmp/wedidit\nsed -ibak 's/^PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config"
-          # system name via hostname
-          #c.computer_name = 'DEV-' + Time.now.to_s.gsub(" ","-").gsub(":","-")
-          c.computer_name = vname.gsub(/\W/,"-")
-          c.enabled = true
-
-          c.save
-
           # power up box for the first time.
-          vm_new.power_on
+          org
+          vdc
+          template
+          instanciate
+          update_customization
+          vapp
+          update_network
+          vm.power_on
 
           # Refresh attributes for vm object to look at in IRB
-          vm_new.reload
-
+          #vm.reload
+          #Chef::Config[:knife][:ssh_password] = vm.customization.admin_password
+          # @bootstrap_ip_address = vm.ip_address
           # Show all the good stuff
-          pp vm_new.network
-          pp vm_new.customization.admin_password
-          pp vm_new.status
-          pp vm_new.ip_address
-          pp vm_new.customization.admin_password
+          # pp vm.network
+          
+          # pp vm.status
+          # pp 
+          # pp vm.customization.admin_password
         end
 
         def before_exec_command
@@ -268,6 +281,13 @@ class Chef
           value['id']
         end
 
+        def primary_public_ip_address
+          raise 'not implemented'
+        end
+        def primary_private_ip_address
+          raise 'not implemented'
+        end
+
         # Setup the floating ip after server creation.
         def after_exec_command
           # Any action you want to perform post VM creation in your cloud.
@@ -283,7 +303,8 @@ class Chef
           # TODO - Set the IP address that should be used for connection with the newly created VM. This IP address is used for bootstrapping the VM and should be accessible from knife workstation.
 
           # your logic goes here to set bootstrap_ip_address...
-
+          Chef::Config[:ssh_password] = vm.customization.admin_password
+          Chef::Log.info("SSH Password: #{Chef::Config[:knife][:ssh_password]}")
           Chef::Log.debug("Bootstrap IP Address: #{bootstrap_ip_address}")
           if bootstrap_ip_address.nil?
             error_message = "No IP address available for bootstrapping."
