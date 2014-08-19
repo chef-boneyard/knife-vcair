@@ -64,7 +64,31 @@ This plugin provides the following Knife subcommands. Specific command options c
 
 ## knife vchs server create OR knife vchs vm create ##
 
-**TODO** Provisions a new vCHS server and bootstraps it with Chef. `knife vchs vm create` is the same command if the term 'vm' is preferred over 'server'.
+Instanciate a new VApp+VM from a Template from one of the available Catalogs.
+
+Windows example:
+```
+knife vchs server create \
+  --winrm-password Password1 \
+  --image W2K12-STD-64BIT \
+  --bootstrap-protocol winrm \
+  --customization-script ./install-winrm-vcair.bat \
+  --vcpus 4 \
+  --memory 4096
+```
+The windows example requires a custom install script to setup winrm, and set/change the initial password without using the console.
+A working example install-winrm-vcair.bat is included in this repo.
+
+Linux example: 
+```
+knife vchs server create --ssh-password 'randompass' --image CentOS64-64bit
+```
+The Linux images require you pass the ssh-password. Ssh public keys are not supported yet.
+
+Assumptions:
+ * each VApp will only contain one VM.
+ * a routed network with a default SNAT rule allowing internet and DNS
+ * a firewall rule allowing that network to reach internet
 
 ## knife vchs server delete OR knife vchs vm delete ##
 
