@@ -72,7 +72,7 @@ knife vchs server create \
   --winrm-password Password1 \
   --image W2K12-STD-64BIT \
   --bootstrap-protocol winrm \
-  --customization-script ./install-winrm-vcair.bat \
+  --customization-script [./install-winrm-vcair.bat](https://github.com/vulk/knife-vchs/blob/server-create/install-winrm-vcair-example.bat) \
   --vcpus 4 \
   --memory 4096
 ```
