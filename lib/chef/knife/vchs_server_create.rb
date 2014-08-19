@@ -3,6 +3,7 @@
 # Copyright:: 
 #
 
+require 'pry'
 require 'chef/knife/cloud/server/create_command'
 require 'chef/knife/vchs_helpers'
 require 'chef/knife/vchs_base'
@@ -34,39 +35,40 @@ class Chef
 
         banner "knife vchs server create (options)"
 
-        def before_exec_command
-          # setup the create options
-          # TODO - update this section to define the server_def that should be passed to fog for creating VM. This will be specific to your cloud.
-          # Example:
-          @create_options = {
-            :server_def => {
-              # servers require a name, knife-cloud generates the chef_node_name
-              :name => config[:chef_node_name],
-              :image_ref => locate_config_value(:image),
-              :flavor_ref => locate_config_value(:flavor)
-              #...
-            },
-            :server_create_timeout => locate_config_value(:server_create_timeout)
-          }
+        #def before_exec_command
+        #  # setup the create options
+        #  # TODO - update this section to define the server_def that should be passed to fog for creating VM. This will be specific to your cloud.
+        #  # Example:
+        #  @create_options = {
+        #    :server_def => {
+        #      # servers require a name, knife-cloud generates the chef_node_name
+        #      :name => config[:chef_node_name],
+        #      :image_ref => locate_config_value(:image),
+        #      :flavor_ref => locate_config_value(:flavor)
+        #      #...
+        #    },
+        #    :server_create_timeout => locate_config_value(:server_create_timeout)
+        #  }
 
-            @create_options[:server_def].merge!({:user_data => locate_config_value(:user_data)}) if locate_config_value(:user_data)
+        #    @create_options[:server_def].merge!({:user_data => locate_config_value(:user_data)}) if locate_config_value(:user_data)
 
-            Chef::Log.debug("Create server params - server_def = #{@create_options[:server_def]}")
+        #    Chef::Log.debug("Create server params - server_def = #{@create_options[:server_def]}")
 
-            # TODO - Update the columns info with the keys and callbacks required as per fog object returned for your cloud. Framework looks for 'key' on your image object hash returned by fog. If you need the values to be formatted or if your value is another object that needs to be looked up use value_callback.
-            # Example:
-            @columns_with_info = [
-              {:label => 'Instance ID', :key => 'id'},
-              {:label => 'Name', :key => 'name'},
-              {:label => 'Public IP', :key => 'addresses', :value_callback => method(:primary_public_ip_address)},
-              {:label => 'Private IP', :key => 'addresses', :value_callback => method(:primary_private_ip_address)},
-              {:label => 'Flavor', :key => 'flavor', :value_callback => method(:get_id)},
-              {:label => 'Image', :key => 'image', :value_callback => method(:get_id)},
-              {:label => 'Keypair', :key => 'key_name'},
-              {:label => 'State', :key => 'state'}
-            ]
-            super
-        end
+        #    # TODO - Update the columns info with the keys and callbacks required as per fog object returned for your cloud. Framework looks for 'key' on your image object hash returned by fog. If you need the values to be formatted or if your value is another object that needs to be looked up use value_callback.
+        #    # Example:
+        #    @columns_with_info= []
+        #    #@columns_with_info = [
+        #    #  {:label => 'Instance ID', :key => 'id'},
+        #    #  {:label => 'Name', :key => 'name'},
+        #    #  {:label => 'Public IP', :key => 'addresses', :value_callback => method(:primary_public_ip_address)},
+        #    #  {:label => 'Private IP', :key => 'addresses', :value_callback => method(:primary_private_ip_address)},
+        #    #  {:label => 'Flavor', :key => 'flavor', :value_callback => method(:get_id)},
+        #    #  {:label => 'Image', :key => 'image', :value_callback => method(:get_id)},
+        #    #  {:label => 'Keypair', :key => 'key_name'},
+        #    #  {:label => 'State', :key => 'state'}
+        #    #]
+        #    super
+        #end
 
         def get_id(value)
           value['id']
@@ -227,6 +229,12 @@ class Chef
           template
           instanciate
           update_customization
+          if locate_config_value(:vcpus)
+            vm.vcpus = locate_config_value(:vcpus)
+          end
+          if locate_config_value(:memory)
+            vm.memory = locate_config_value(:memory)
+          end
           vapp
           update_network
           vm.power_on
@@ -264,16 +272,17 @@ class Chef
 
             # TODO - Update the columns info with the keys and callbacks required as per fog object returned for your cloud. Framework looks for 'key' on your image object hash returned by fog. If you need the values to be formatted or if your value is another object that needs to be looked up use value_callback.
             # Example:
-            @columns_with_info = [
-              {:label => 'Instance ID', :key => 'id'},
-              {:label => 'Name', :key => 'name'},
-              {:label => 'Public IP', :key => 'addresses', :value_callback => method(:primary_public_ip_address)},
-              {:label => 'Private IP', :key => 'addresses', :value_callback => method(:primary_private_ip_address)},
-              {:label => 'Flavor', :key => 'flavor', :value_callback => method(:get_id)},
-              {:label => 'Image', :key => 'image', :value_callback => method(:get_id)},
-              {:label => 'Keypair', :key => 'key_name'},
-              {:label => 'State', :key => 'state'}
-            ]
+            @columns_with_info = []
+            # @columns_with_info = [
+            #   {:label => 'Instance ID', :key => 'id'},
+            #   {:label => 'Name', :key => 'name'},
+            #   {:label => 'Public IP', :key => 'addresses', :value_callback => method(:primary_public_ip_address)},
+            #   {:label => 'Private IP', :key => 'addresses', :value_callback => method(:primary_private_ip_address)},
+            #   {:label => 'Flavor', :key => 'flavor', :value_callback => method(:get_id)},
+            #   {:label => 'Image', :key => 'image', :value_callback => method(:get_id)},
+            #   {:label => 'Keypair', :key => 'key_name'},
+            #   {:label => 'State', :key => 'state'}
+            # ]
             super
         end
 
@@ -303,8 +312,9 @@ class Chef
           # TODO - Set the IP address that should be used for connection with the newly created VM. This IP address is used for bootstrapping the VM and should be accessible from knife workstation.
 
           # your logic goes here to set bootstrap_ip_address...
+
           Chef::Config[:ssh_password] = vm.customization.admin_password
-          Chef::Log.info("SSH Password: #{Chef::Config[:knife][:ssh_password]}")
+          Chef::Log.info("SSH Password: #{vm.customization.admin_password}")
           Chef::Log.debug("Bootstrap IP Address: #{bootstrap_ip_address}")
           if bootstrap_ip_address.nil?
             error_message = "No IP address available for bootstrapping."

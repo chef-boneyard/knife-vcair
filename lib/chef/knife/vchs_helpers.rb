@@ -117,10 +117,13 @@ class Chef
           @service.connection.process_task(nc_task)
         end
 
+        def is_windows?
+          vm.operating_system =~ /indows/ ? true : false
+        end
+
         def update_customization
           ## Initialization before first power on.
           c=vm.customization
-          c.admin_password_auto = false # default auto
           # c.admin_password_auto = true # auto
           #
           ## TODO: take password from config/options
@@ -128,18 +131,37 @@ class Chef
           #  bundle exec knife vchs server create  -VV
 # ERROR: You must provide either Identity file or SSH Password.
 # DEBUG:  You must provide either Identity file or SSH Password..
+          ## FIXME: better logic would be to identify if this a windows or linux box
+          # if winrm_password is set in knife.rb
+          # set_passwd=true
           
-          c.admin_password = locate_config_value(:ssh_password) # SecureRandom.base64(15)
-          c.reset_password_required = false
-
+          if locate_config_value(:customization_script)
+            c.script = open(locate_config_value(:customization_script)).read
+          end
+          set_passwd=true
+          if set_passwd
+            if is_windows?
+              passwd = locate_config_value(:winrm_password)
+            else
+              passwd = locate_config_value(:ssh_password)
+            end
+            c.admin_password = passwd # SecureRandom.base64(15)
+            c.admin_password_auto = false # default auto
+            c.reset_password_required = false
+           # c.admin_auto_logon_count = 100
+           # c.admin_auto_logon_enabled = true
+          else
+            c.admin_password_auto=true
+            c.reset_password_required = true
+          end
           ## TODO: make customizaton_script pull from config/command options if available
           #c.customization_script = "sed -ibak 's/^PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config"
           #c.script = "#!/bin/sh\ntouch /tmp/wedidit\nsed -ibak 's/^PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config"
           # system name via hostname
           #c.computer_name = 'DEV-' + Time.now.to_s.gsub(" ","-").gsub(":","-")
+          # c.script = c.script.gsub(/(?:\r\n)|(?:\n)/, "&#13;") unless c.script.to_s.empty?
           c.computer_name = locate_config_value(:chef_node_name).gsub(/\W/,"-")
           c.enabled = true
-
           c.save
         end
 
