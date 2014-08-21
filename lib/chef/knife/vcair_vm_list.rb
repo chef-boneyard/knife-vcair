@@ -18,20 +18,19 @@
 #
 
 require 'chef/knife/cloud/list_resource_command'
-require 'chef/knife/vchs_helpers'
-require 'chef/knife/cloud/vchs_service_options'
+require 'chef/knife/vcair_helpers'
+require 'chef/knife/cloud/vcair_service_options'
 
 class Chef
   class Knife
     class Cloud
-      class VchsVmList < ResourceListCommand
-        include VchsHelpers
-        include VchsServiceOptions
+      class VcairVmList < ResourceListCommand
+        include VcairHelpers
+        include VcairServiceOptions
 
-        banner "knife vchs vm list (options)"
+        banner "knife vcair vm list (options)"
 
         def query_resource
-          vdc = @service.connection.organizations.get_by_name(Chef::Config[:knife][:vchs_org]).vdcs.first
           vms = []
           vdc.vapps.all.each do |vapp|
             vms << vapp.vms.all

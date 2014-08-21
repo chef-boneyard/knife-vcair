@@ -16,16 +16,16 @@
 # limitations under the License.
 #
 
-require 'chef/knife/vchs_vm_list'
-require 'chef/knife/cloud/vchs_service_options'
+require 'chef/knife/vcair_vm_list'
+require 'chef/knife/cloud/vcair_service_options'
 
 class Chef
   class Knife
     class Cloud
-      class VchsServerList < VchsVmList
-        include VchsServiceOptions
+      class VcairServerList < VcairVmList
+        include VcairServiceOptions
 
-        banner "knife vchs server list (options)"
+        banner "knife vcair server list (options)"
 
       end
     end

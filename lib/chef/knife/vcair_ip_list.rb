@@ -30,6 +30,7 @@ class Chef
         banner "knife vcair ip list (options)"
 
         def query_resource
+          # TODO: this doesn't work yet, this in inside the routers
           org.networks
         end
 

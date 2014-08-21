@@ -59,6 +59,12 @@ class Chef
            :description => "Your VCAIR password",
            :proc => Proc.new { |key| Chef::Config[:knife][:vcair_password] = key }
            
+           option :vcair_vdc,
+           :long => "--vcair-vdc VDCNAME",
+           :description => "Your VCAIR VDC",
+           :default => nil,
+           :proc => Proc.new { |key| Chef::Config[:knife][:vcair_vdc] = key }
+           
           end
         end
       end

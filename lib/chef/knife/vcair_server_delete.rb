@@ -16,17 +16,17 @@
 # limitations under the License.
 #
 
-require 'chef/knife/vchs_vm_delete'
-require 'chef/knife/cloud/vchs_service_options'
+require 'chef/knife/vcair_vm_delete'
+require 'chef/knife/cloud/vcair_service_options'
 
 class Chef
   class Knife
     class Cloud
-      class VchsServerDelete < VchsVmDelete
-        include VchsServiceOptions
+      class VcairServerDelete < VcairVmDelete
+        include VcairServiceOptions
         include ServerDeleteOptions
 
-        banner "knife vchs server delete INSTANCEID [INSTANCEID] (options)"
+        banner "knife vcair server delete INSTANCEID [INSTANCEID] (options)"
 
       end
     end

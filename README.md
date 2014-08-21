@@ -118,6 +118,16 @@ Lists the networks available to the current vcair organization.
 
 **TODO** The list of public IP Addresses provided and allocated for the current vcair organization network.
 
+
+# Notes #
+
+Ubuntu images seems to not use customizaton (script nor setting password) and default to not allowing ssh w/ password even if known
+
+```ruby
+template = public_catalog.catalog_items.get_by_name('Ubuntu Server 12.04 LTS (amd64 20140619)'
+```
+
+
 # License #
 
 Author:: Matt Ray (<matt@getchef.com>)
