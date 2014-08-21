@@ -114,11 +114,34 @@ class Chef
         def validate_params!
           super
           errors = []
-          
-          # TODO - Add your validation here for any create server parameters and populate errors [] with error message strings.
+          case config_value(:bootstrap_protocol)
+          when 'winrm'
+            password = config_value(:winrm_password)
+            errors << "WinRM requires a password on Vcair" unless password
+            batch_file = config_value(:customization_script)
+            if File.exists? batch_file
+              batch_contents = open(batch_file).read
+              if not contents.grep /${password}/
+                errors << "WinRM customization script must set password"
+              end
+            else
+              errors << """
+WinRM requires a customization_script on Vcair
+The batch file should setup winrm and set the password
+An example is available at:
+https://raw.githubusercontent.com/vulk/knife-vchs/server-create/install-winrm-vcair-example.bat
+"""
+            end
+
+          when 'ssh'
+            errors << "SSH requires a password on Vcair" unless config_value(:ssh_password)
+          end
+
 
           # errors << "your error message" if some_param_undefined
-
+          # TODO: Error out if windows users don't provide a password
+          # AND maybe even force a batch file and check that the password
+          # is in it
           error_message = ""
           raise CloudExceptions::ValidationError, error_message if errors.each{|e| ui.error(e); error_message = "#{error_message} #{e}."}.any?
         end
