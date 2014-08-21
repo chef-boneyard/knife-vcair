@@ -19,7 +19,7 @@
 $:.unshift File.expand_path('../../lib', __FILE__)
 
 require 'chef/knife/bootstrap'
-require 'chef/knife/vchs_helpers'
+require 'chef/knife/vcair_helpers'
 # require 'winrm'
 # require 'em-winrm'
 require 'chef'
@@ -36,10 +36,10 @@ Dotenv.load
 # require 'knife-vcloud/version'
 require 'chef/knife/winrm_base'
 require 'chef/knife/bootstrap_windows_winrm'
-require 'chef/knife/vchs_server_create'
-require 'chef/knife/vchs_server_delete'
+require 'chef/knife/vcair_server_create'
+require 'chef/knife/vcair_server_delete'
 require 'chef/knife/bootstrap_windows_ssh'
-require 'knife-vchs/version'
+require 'knife-vcair/version'
 
 require 'test/knife-utils/test_bed'
 require 'resource_spec_helper'

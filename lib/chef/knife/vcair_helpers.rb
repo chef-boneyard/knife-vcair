@@ -71,7 +71,7 @@ class Chef
           end
         end
         
-        def validate!(keys=[:vcair_username, :vcair_password, :vcair_host, :vcair_org, :vcair_api_version])
+        def validate!(keys=[:vcair_username, :vcair_password, :vcair_api_host, :vcair_org, :vcair_api_version])
           errors = []
           keys.each do |k|
             pretty_key = k.to_s.gsub(/_/, ' ').gsub(/\w+/){ |w| (w =~ /(ssh)/i) ? w.upcase  : w.capitalize }

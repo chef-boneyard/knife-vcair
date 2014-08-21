@@ -29,17 +29,16 @@ class Chef
 
            # vcair connection params
            option :vcair_api_version,
-           :short => "-V VERSION",
-           :long => "--vcair-host VERSION",
+           :long => "--vcair-api-version VERSION",
            :description => "The VCAIR API version",
            :default => '5.6',
            :proc => Proc.new { |u| Chef::Config[:knife][:vcair_api_version] = u }
 
-           option :vcair_host,
-           :short => "-U HOST",
-           :long => "--vcair-host HOST",
+           option :vcair_api_host,
+           :short => "-U API_HOST",
+           :long => "--vcair-api-host HOST",
            :description => "The VCAIR API endpoint",
-           :proc => Proc.new { |u| Chef::Config[:knife][:vcair_host] = u }
+           :proc => Proc.new { |u| Chef::Config[:knife][:vcair_api_host] = u }
            
            option :vcair_org,
            :short => "-O ORG",
@@ -64,6 +63,11 @@ class Chef
            :description => "Your VCAIR VDC",
            :default => nil,
            :proc => Proc.new { |key| Chef::Config[:knife][:vcair_vdc] = key }
+           
+           option :vcair_show_progress,
+           :long => "--vcair-show-progress BOOL",
+           :description => "Show VCAIR API Progress",
+           :default => false
            
           end
         end

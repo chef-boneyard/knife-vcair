@@ -94,8 +94,8 @@ class Chef
           super
           vm.reload
           Chef::Log.debug("Bootstrap IP Address: #{bootstrap_ip_address}")
-          Chef::Log.info("SSH Password: #{vm.customization.admin_password}")
-          Chef::Config[:ssh_password] = vm.customization.admin_password
+          # If we start using auto_generated passwords, we might need this
+          # Chef::Config[:ssh_password] = vm.customization.admin_password
           if bootstrap_ip_address.nil?
             error_message = "No IP address available for bootstrapping."
             ui.error(error_message)
@@ -112,10 +112,10 @@ class Chef
           when 'winrm'
             password = config_value(:winrm_password)
             errors << "WinRM requires a password on Vcair" unless password
-            batch_file = config_value(:customization_script)
-            if File.exists? batch_file
+            batch_file = config_value(:vcair_customization_script)
+            if ::File.exists? batch_file
               batch_contents = open(batch_file).read
-              if not contents.grep /${password}/
+              if not batch_contents.match /#{password}/
                 errors << "WinRM customization script must set password"
               end
             else
@@ -153,8 +153,8 @@ https://raw.githubusercontent.com/vulk/knife-vchs/server-create/install-winrm-vc
           ## Initialization before first power on.
           c=vm.customization
           
-          if config_value(:customization_script)
-            c.script = open(config_value(:customization_script)).read
+          if config_value(:vcair_customization_script)
+            c.script = open(config_value(:vcair_customization_script)).read
           end
           
           password = case config_value(:bootstrap_protocol)
@@ -179,7 +179,8 @@ https://raw.githubusercontent.com/vulk/knife-vchs/server-create/install-winrm-vc
           # c.admin_auto_logon_enabled = true
 
           # DNS and Windows want AlphaNumeric and dashes for hostnames
-          c.computer_name = config_value(:chef_node_name).gsub(/\W/,"-")
+          # Windows can only handle 15 character hostnames
+          c.computer_name = config_value(:chef_node_name).gsub(/\W/,"-").slice(0..14)
           c.enabled = true
           c.save
         end

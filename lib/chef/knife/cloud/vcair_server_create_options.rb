@@ -28,12 +28,12 @@ class Chef
            include ServerCreateOptions
            
            # availble in knife.rb -short
-           option :vcair_custom_script
-           :long => "--customized-boot SCRIPTFILE",
+           option :vcair_customization_script,
+           :long => "--customization-script SCRIPTFILE",
            :short => "-B SCRIPTFILE",
            :description => "The Bat or Shell script to provision the instance with",
            :default => nil,
-           :proc => Proc.new { |o| Chef::Config[:knife][:vcair_custom_script] = o }
+           :proc => Proc.new { |o| Chef::Config[:knife][:vcair_customization_script] = o }
 
            option :vcair_cpus,
            :long => "--cpus CPUS",
