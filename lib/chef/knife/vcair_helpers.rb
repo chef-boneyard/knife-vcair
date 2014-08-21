@@ -75,16 +75,15 @@ class Chef
               IsConnected: true
             }
             ip_address      = network[:ip_address]
+            ## TODO: support config options for allocation mode
             #allocation_mode = network[:allocation_mode]
             #allocation_mode = 'manual' if ip_address
             #allocation_mode = 'dhcp' unless %w{dhcp manual pool}.include?(allocation_mode)
             #allocation_mode = 'POOL'
-
-            ## TODO: support config options for allocation mode
+            #connection[:Dns1] = dns1 if dns1
             allocation_mode = 'pool'
             connection[:IpAddressAllocationMode] = allocation_mode.upcase
             connection[:IpAddress] = ip_address if ip_address
-            #connection[:Dns1] = dns1 if dns1
             connection
           end
 

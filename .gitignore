@@ -83,3 +83,4 @@ Procfile.dev
 .rails_footnotes
 public/import/
 tags
+*~

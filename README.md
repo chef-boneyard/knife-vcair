@@ -124,6 +124,8 @@ Author:: Matt Ray (<matt@getchef.com>)
 
 Author:: Seth Thomas (<sthomas@getchef.com>)
 
+Author:: Chris McClimans (<c@vulk.co>)
+
 Copyright:: Copyright (c) 2014 Chef Software, Inc.
 
 License:: Apache License, Version 2.0
