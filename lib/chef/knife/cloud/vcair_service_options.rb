@@ -1,39 +1,64 @@
 #
-# Author:: 
-# Copyright:: 
+# Author:: "Vulk Wolfpack" <wolfpack@vulk.co>
+# Copyright:: Copyright (c) 2014 Chef Software, Inc.
+# License:: Apache License, Version 2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #
 
 require 'chef/knife/cloud/fog/options'
+
 class Chef
   class Knife
     class Cloud
-      module VchsServiceOptions
+      module VcairServiceOptions
 
        def self.included(includer)
-          includer.class_eval do
-            include FogOptions
-            # vCHS connection params
-            option :vchs_username,
-              :short => "-A USERNAME",
-              :long => "--vchs-username USERNAME",
-              :description => "Your vCloud Hybrid Service username",
-              :proc => Proc.new { |key| Chef::Config[:knife][:vchs_username] = key }
+         includer.class_eval do
+           include FogOptions
 
-            option :vchs_password,
-              :short => "-K SECRET",
-              :long => "--vchs-password SECRET",
-              :description => "Your vCloud Hybrid Service password",
-              :proc => Proc.new { |key| Chef::Config[:knife][:vchs_password] = key }
+           # vcair connection params
+           option :vcair_api_version,
+           :short => "-V VERSION",
+           :long => "--vcair-host VERSION",
+           :description => "The VCAIR API version",
+           :default => '5.6',
+           :proc => Proc.new { |u| Chef::Config[:knife][:vcair_api_version] = u }
 
-            option :vchs_api_url,
-              :long => "--vchs-api-url URL",
-              :description => "Your vCloud Hybrid Service API URL",
-              :proc => Proc.new { |key| Chef::Config[:knife][:vchs_api_url] = key }
+           option :vcair_host,
+           :short => "-U HOST",
+           :long => "--vcair-host HOST",
+           :description => "The VCAIR API endpoint",
+           :proc => Proc.new { |u| Chef::Config[:knife][:vcair_host] = u }
+           
+           option :vcair_org,
+           :short => "-O ORG",
+           :long => "--vcair-org ORG",
+           :description => "The VCAIR ORG",
+           :proc => Proc.new { |u| Chef::Config[:knife][:vcair_org] = u }
 
-            option :vchs_org,
-              :long => "--vchs-org ORG",
-              :description => "Your vCloud Hybrid Service Organization",
-              :proc => Proc.new { |key| Chef::Config[:knife][:vchs_org] = key }
+           option :vcair_username,
+           :short => "-A USERNAME",
+           :long => "--vcair-username USERNAME",
+           :description => "Your VCAIR username",
+           :proc => Proc.new { |username| Chef::Config[:knife][:vcair_username] = username }
+           
+           option :vcair_password,
+           :short => "-K PASSWORD",
+           :long => "--vcair-password PASSWORD",
+           :description => "Your VCAIR password",
+           :proc => Proc.new { |key| Chef::Config[:knife][:vcair_password] = key }
+           
           end
         end
       end

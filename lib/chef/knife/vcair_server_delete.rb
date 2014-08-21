@@ -24,6 +24,7 @@ class Chef
     class Cloud
       class VchsServerDelete < VchsVmDelete
         include VchsServiceOptions
+        include ServerDeleteOptions
 
         banner "knife vchs server delete INSTANCEID [INSTANCEID] (options)"
 

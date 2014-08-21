@@ -1,7 +1,7 @@
-Knife vCHS
+Knife vcair
 ===============
 
-This is the official Chef Knife plugin VMware's vCloud Hybrid Service (vCHS). This plugin gives knife the ability to create, bootstrap and manage instances on vCHS-based public and private clouds.
+This is the official Chef Knife plugin VMware's vCloud Hybrid Service (vcair). This plugin gives knife the ability to create, bootstrap and manage instances on vcair-based public and private clouds.
 
 Please refer to the [CHANGELOG](CHANGELOG.md) for version history and known issues.
 
@@ -16,72 +16,72 @@ This plugin currently depends on the unreleased knife-cloud gem. To install it c
 
 Then build and install this gem, run:
 
-    $ gem build knife-vchs.gemspec
-    $ gem install knife-vchs-0.1.0.gem
+    $ gem build knife-vcair.gemspec
+    $ gem install knife-vcair-0.1.0.gem
 
 or if you are using the Chef Development Kit (Chef DK), to install it run:
 
-    $ chef gem install knife-vchs-0.1.0.gem
+    $ chef gem install knife-vcair-0.1.0.gem
 
 ## Future Rubygems Instructions: ##
 
 This plugin is distributed as a Ruby Gem. To install it, run:
 
-    $ gem install knife-vchs
+    $ gem install knife-vcair
 
 If you are using the Chef Development Kit (Chef DK), to install it run:
 
-    $ chef gem install knife-vchs
+    $ chef gem install knife-vcair
 
 # Configuration #
 
-In order to communicate with an vCHS API you will need to tell Knife your vCHS API endpoint, username, password and organization. The easiest way to accomplish this is to create these entries in your `knife.rb` file:
+In order to communicate with an vcair API you will need to tell Knife your vcair API endpoint, username, password and organization. The easiest way to accomplish this is to create these entries in your `knife.rb` file:
 
-    knife[:vchs_api_url] = 'vchs.example.com'
-    knife[:vchs_username] = 'Your vCHS username'
-    knife[:vchs_password] = 'Your vCHS password'
-    knife[:vchs_org] = 'Your vCHS organization'
+    knife[:vcair_api_url] = 'vcair.example.com'
+    knife[:vcair_username] = 'Your vcair username'
+    knife[:vcair_password] = 'Your vcair password'
+    knife[:vcair_org] = 'Your vcair organization'
 
 If your knife.rb file will be checked into a SCM system (ie readable by others) you may want to read the values from environment variables.
 
-    knife[:vchs_api_url] = "#{ENV['VCHS_API_URL']}"
-    knife[:vchs_username] = "#{ENV['VCHS_USERNAME']}"
-    knife[:vchs_password] = "#{ENV['VCHS_PASSWORD']}"
-    knife[:vchs_org] = "#{ENV['VCHS_ORG']}"
+    knife[:vcair_api_url] = "#{ENV['VCAIR_API_URL']}"
+    knife[:vcair_username] = "#{ENV['VCAIR_USERNAME']}"
+    knife[:vcair_password] = "#{ENV['VCAIR_PASSWORD']}"
+    knife[:vcair_org] = "#{ENV['VCAIR_ORG']}"
 
-## VMware's vCHS ##
+## VMware's vcair ##
 
-If you are using VMware's hosted vCHS the API URL is found by logging into the https://vchs.vmware.com, and clicking on your Dashboard's Virtual Data Center. On the right under "Related Links" click on the "vCloud Director API URL" and copy that value. It should look something like `https://p3v11-vcd.vchs.vmware.com:443/cloud/org/M511664989-4904/` From this we will take our base API URL `p3v11-vcd.vchs.vmware.com` and get our organization `M511664989-4904` that is appended to our https://vchs.vmware.com login, giving us the values:
+If you are using VMware's hosted vcair the API URL is found by logging into the https://vchs.vmware.com, and clicking on your Dashboard's Virtual Data Center. On the right under "Related Links" click on the "vCloud Director API URL" and copy that value. It should look something like `https://p3v11-vcd.vchs.vmware.com:443/cloud/org/M511664989-4904/` From this we will take our base API URL `p3v11-vcd.vchs.vmware.com` and get our organization `M511664989-4904` that is appended to our https://vchs.vmware.com login, giving us the values:
 
-    knife[:vchs_api_url] = 'p3v11-vcd.vchs.vmware.com'
-    knife[:vchs_username] = 'user@somedomain.com
-    knife[:vchs_password] = 'VCHSSECRET'
-    knife[:vchs_org] = 'M511664989-4904'
+    knife[:vcair_api_url] = 'p3v11-vcd.vchs.vmware.com'
+    knife[:vcair_username] = 'user@somedomain.com
+    knife[:vcair_password] = 'VCAIRSECRET'
+    knife[:vcair_org] = 'M511664989-4904'
 
-# knife vchs subcommands #
+# knife vcair subcommands #
 
 This plugin provides the following Knife subcommands. Specific command options can be found by invoking the subcommand with a `--help` option.
 
-## knife vchs server create OR knife vchs vm create ##
+## knife vcair server create OR knife vcair vm create ##
 
 Instanciate a new VApp+VM from a Template from one of the available Catalogs.
 
 Windows example:
 ```
-knife vchs server create \
+knife vcair server create \
   --winrm-password Password1 \
   --image W2K12-STD-64BIT \
   --bootstrap-protocol winrm \
-  --customization-script [./install-winrm-vcair.bat](https://github.com/vulk/knife-vchs/blob/server-create/install-winrm-vcair-example.bat) \
+  --customization-script [./install-winrm-vcair.bat](https://github.com/vulk/knife-vcair/blob/server-create/install-winrm-vcair-example.bat) \
   --vcpus 4 \
   --memory 4096
 ```
-The windows example requires a custom install script to setup winrm, and set/change the initial password without using the console.
-A working example install-winrm-vcair.bat is included in this repo.
+The windows example requires a custom install script to setup winrm, and set/change the initial password without using the web console.
+A working example install-winrm-vcair-example.bat is included in this repo.
 
 Linux example: 
 ```
-knife vchs server create --ssh-password 'randompass' --image CentOS64-64bit
+knife vcair server create --ssh-password 'randompass' --image CentOS64-64bit
 ```
 The Linux images require you pass the ssh-password. Ssh public keys are not supported yet.
 
@@ -90,33 +90,33 @@ Assumptions:
  * a routed network with a default SNAT rule allowing internet and DNS
  * a firewall rule allowing that network to reach internet
 
-## knife vchs server delete OR knife vchs vm delete ##
+## knife vcair server delete OR knife vcair vm delete ##
 
-Delete a vCHS vAPP. `knife vchs vm delete` is the same command if the term 'vm' is preferred over 'server'. **PLEASE NOTE** - this does not delete the associated node and client objects from the Chef server without using the `-P` option to purge the client.
+Delete a vcair vAPP. `knife vcair vm delete` is the same command if the term 'vm' is preferred over 'server'. **PLEASE NOTE** - this does not delete the associated node and client objects from the Chef server without using the `-P` option to purge the client.
 
-## knife vchs server list OR knife vchs vm list ##
+## knife vcair server list OR knife vcair vm list ##
 
-List the currently deployed vCHS servers by their vAPP. `knife vchs vm list` is the same command if the term 'vm' is preferred over 'server'.
+List the currently deployed vcair servers by their vAPP. `knife vcair vm list` is the same command if the term 'vm' is preferred over 'server'.
 
-## knife vchs image list OR knife vchs template list ##
+## knife vcair image list OR knife vcair template list ##
 
-List the available vCHS templates or images that may be used for deploying VMs.
+List the available vcair templates or images that may be used for deploying VMs.
 
-## knife vchs network list ##
+## knife vcair network list ##
 
-Lists the networks available to the current vCHS organization.
+Lists the networks available to the current vcair organization.
 
-## knife vchs nat list ##
+## knife vcair nat list ##
 
-**TODO** List the Network Address Translation (NAT) rules modifying the source/destination IP Addresses or packets arriving to and leaving from the vCHS organization network.
+**TODO** List the Network Address Translation (NAT) rules modifying the source/destination IP Addresses or packets arriving to and leaving from the vcair organization network.
 
-## knife vchs firewall list ##
+## knife vcair firewall list ##
 
-**TODO** The list of firewall rules configured for the current vCHS organization network.
+**TODO** The list of firewall rules configured for the current vcair organization network.
 
-## knife vchs ip list ##
+## knife vcair ip list ##
 
-**TODO** The list of public IP Addresses provided and allocated for the current vCHS organization network.
+**TODO** The list of public IP Addresses provided and allocated for the current vcair organization network.
 
 # License #
 

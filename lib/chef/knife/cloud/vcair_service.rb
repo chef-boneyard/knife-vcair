@@ -8,28 +8,32 @@ require 'chef/knife/cloud/fog/service'
 class Chef
   class Knife
     class Cloud
-      class VchsService < FogService
+      class VcairService < FogService
 
         def initialize(options = {})
-          # TODO - Add cloud specific auth params to be passed to fog connection. See knife-openstack for real life example.
-          Chef::Log.debug("vchs_username #{Chef::Config[:knife][:vchs_username]}")
-          Chef::Log.debug("vchs_org #{Chef::Config[:knife][:vchs_org]}")
-          Chef::Log.debug("vchs_api_url #{Chef::Config[:knife][:vchs_api_url]}")
+          Chef::Log.debug("vcair_username #{Chef::Config[:knife][:vcair_username]}")
+          Chef::Log.debug("vcair_org #{Chef::Config[:knife][:vcair_org]}")
+          Chef::Log.debug("vcair_api_host #{Chef::Config[:knife][:vcair_api_host]}")
+          Chef::Log.debug("vcair_api_version #{Chef::Config[:knife][:vcair_api_version]}")
 
-          username = "#{Chef::Config[:knife][:vchs_username]}@#{Chef::Config[:knife][:vchs_org]}"
+          username = [
+                      Chef::Config[:knife][:vcair_username],
+                      Chef::Config[:knife][:vcair_org]
+                      ].join('@')
 
           super(options.merge({
-                              :auth_params => {
-                                :provider => 'vclouddirector',
-                                :vcloud_director_username => username,
-                                :vcloud_director_password => Chef::Config[:knife][:vchs_password],
-                                :vcloud_director_host => Chef::Config[:knife][:vchs_api_url],
-                                :vcloud_director_api_version => '5.6'
-                }}))
+            :auth_params => {
+              :provider => 'vclouddirector',
+              :vcloud_director_username => username,
+              :vcloud_director_password => Chef::Config[:knife][:vcair_password],
+              :vcloud_director_host => Chef::Config[:knife][:vcair_api_host],
+              :vcloud_director_api_version => Chef::Config[:knife][:vcair_api_version]
+            }
+          }))
         end
 
         def add_api_endpoint
-          @auth_params.merge!({:vchs_api_url => Chef::Config[:knife][:vchs_api_url]}) unless Chef::Config[:knife][:api_endpoint].nil?
+          @auth_params.merge!({:vcair_api_host => Chef::Config[:knife][:vcair_api_host]}) unless Chef::Config[:knife][:api_endpoint].nil?
         end
 
       end

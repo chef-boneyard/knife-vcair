@@ -1,94 +1,71 @@
 #
-# Author:: 
-# Copyright:: 
+# Author:: "Vulk Wolfpack" <wolfpack@vulk.co>
+# Copyright:: Chef Inc.
 #
 
-require 'chef/knife/cloud/vchs_service_options'
+require 'chef/knife/cloud/vcair_service_options'
 require 'pry'
 
 class Chef
   class Knife
     class Cloud
-      module VchsHelpers
-
-        # TODO - Define helper methods used across your commands 
+      module VcairHelpers
 
         def create_service_instance
-          VchsService.new
+          VcairService.new
         end
         
         def org
           @org ||= @service.connection.organizations.get_by_name(
-                                                                 locate_config_value(:vchs_org))
+                     config_value(:vcair_org))
         end
 
         def vdc
-          vdc_name = locate_config_value(:vchs_org)
-          @vdc ||= vdc_name.nil? ? org.vdcs.first : org.vdcs.get_by_name(vdc_name)
+          if config_value(:vcair_org)
+            @vdc ||= org.vdcs.get_by_name(vdc_name)
+          else
+            @vdc ||= org.vdcs.first
+          end
         end
         
         def net
-          @net ||= org.networks.find { |n| n if n.name.match("routed$")  }
+          @net ||= org.networks.find { |n| n if n.name.match("routed$") }
         end
 
         def template
-          @template ||= org.catalogs.map{|cat| cat.catalog_items.get_by_name(locate_config_value(:image))}.compact.first
+          @template ||= org.catalogs.map do |cat|
+            cat.catalog_items.get_by_name(config_value(:image))
+          end.compact.first
         end
         
         def vapp
-          @vapp ||= vdc.vapps.get_by_name(locate_config_value(:chef_node_name))
+          @vapp ||= vdc.vapps.get_by_name(config_value(:chef_node_name))
         end
         
         def vm
-          @vm ||= vapp.vms.find {|v| v.vapp_name == locate_config_value(:chef_node_name) }
+          @vm ||= vapp.vms.find {|v| v.vapp_name == config_value(:chef_node_name)}
         end
 
         def network_config
-          @network_config ||= vapp.network_config.find { |n| n if n[:networkName].match("routed$") }
+          @network_config ||= vapp.network_config.find do |n|
+            n if n[:networkName].match("routed$")
+          end
         end
         
         def instanciate
-          @instancate ||= template.instantiate(locate_config_value(:chef_node_name),vdc_id: vdc.id, network_id: net.id, description: 'description')
+          node_name = config_value(:chef_node_name)
+          @instancate ||= template.instantiate(
+                                               node_name,
+                                               vdc_id: vdc.id,
+                                               network_id: net.id,
+                                               description: "id:#{node_name}")
         end
         
-        def get_id(value)
-          value['id']
-        end
-        
-        # Setup the floating ip after server creation.
-        def after_exec_command
-          # Any action you want to perform post VM creation in your cloud.
-          # Example say assigning floating IP to the newly created VM.
-          # Make calls to "service" object if you need any information for cloud, example service.connection.addresses
-          # Make call to "server" object if you want set properties on newly created VM, example server.associate_address(floating_address)
-
-          super
-        end
-
-        def before_bootstrap
-          super
-          # TODO - Set the IP address that should be used for connection with the newly created VM. This IP address is used for bootstrapping the VM and should be accessible from knife workstation.
-
-          # your logic goes here to set bootstrap_ip_address...
-
-          Chef::Log.debug("Bootstrap IP Address: #{bootstrap_ip_address}")
-          if bootstrap_ip_address.nil?
-            error_message = "No IP address available for bootstrapping."
-            ui.error(error_message)
-            raise CloudExceptions::BootstrapError, error_message
-          end
-          config[:bootstrap_ip_address] = bootstrap_ip_address
-        end
-
         def update_network
           ## TODO: allow user to specify network to connect to (see above net used)
           # Define network connection for vm based on existing routed network
-          # network_config = vapp_new.network_config.find { |n| n if n[:networkName].match("routed$") }
           nc = vapp.network_config.find { |n| n if n[:networkName].match("routed$") }
           networks_config = [nc]
-#           networks_config = [network_config]
-
-          # networks_config = vapp_new.network_config
           section = {PrimaryNetworkConnectionIndex: 0}
           section[:NetworkConnection] = networks_config.compact.each_with_index.map do |network, i|
             connection = {
@@ -117,50 +94,37 @@ class Chef
           @service.connection.process_task(nc_task)
         end
 
-        def is_windows?
-          vm.operating_system =~ /indows/ ? true : false
-        end
-
         def update_customization
           ## Initialization before first power on.
           c=vm.customization
-          # c.admin_password_auto = true # auto
-          #
-          ## TODO: take password from config/options
-          #c.admin_password = ENV['VCLOUD_VM_ADMIN_PASSWORD']
-          #  bundle exec knife vchs server create  -VV
-# ERROR: You must provide either Identity file or SSH Password.
-# DEBUG:  You must provide either Identity file or SSH Password..
-          ## FIXME: better logic would be to identify if this a windows or linux box
-          # if winrm_password is set in knife.rb
-          # set_passwd=true
           
-          if locate_config_value(:customization_script)
-            c.script = open(locate_config_value(:customization_script)).read
+          if config_value(:customization_script)
+            c.script = open(config_value(:customization_script)).read
           end
-          set_passwd=true
-          if set_passwd
-            if is_windows?
-              passwd = locate_config_value(:winrm_password)
-            else
-              passwd = locate_config_value(:ssh_password)
-            end
-            c.admin_password = passwd # SecureRandom.base64(15)
-            c.admin_password_auto = false # default auto
+          
+          password = case config_value(:bootstrap_protocol)
+                     when 'winrm'
+                       config_value(:winrm_password)
+                     when 'ssh'
+                       config_value(:ssh_password)
+                     end
+          if password
+            c.admin_password =  password 
+            c.admin_password_auto = false
             c.reset_password_required = false
-           # c.admin_auto_logon_count = 100
-           # c.admin_auto_logon_enabled = true
           else
+            # Password will be autogenerated
             c.admin_password_auto=true
+            # API will force password resets when auto is enabled
             c.reset_password_required = true
           end
-          ## TODO: make customizaton_script pull from config/command options if available
-          #c.customization_script = "sed -ibak 's/^PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config"
-          #c.script = "#!/bin/sh\ntouch /tmp/wedidit\nsed -ibak 's/^PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config"
-          # system name via hostname
-          #c.computer_name = 'DEV-' + Time.now.to_s.gsub(" ","-").gsub(":","-")
-          # c.script = c.script.gsub(/(?:\r\n)|(?:\n)/, "&#13;") unless c.script.to_s.empty?
-          c.computer_name = locate_config_value(:chef_node_name).gsub(/\W/,"-")
+          
+          # TODO: Add support for admin_auto_logon to fog
+          # c.admin_auto_logon_count = 100
+          # c.admin_auto_logon_enabled = true
+
+          # DNS and Windows want AlphaNumeric and dashes for hostnames
+          c.computer_name = config_value(:chef_node_name).gsub(/\W/,"-")
           c.enabled = true
           c.save
         end

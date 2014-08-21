@@ -1,6 +1,6 @@
 module Knife
-  module Vchs
-    VERSION = "0.1.0"
+  module VCAir
+    VERSION = "0.1.3"
     MAJOR, MINOR, TINY = VERSION.split('.')
   end
 end

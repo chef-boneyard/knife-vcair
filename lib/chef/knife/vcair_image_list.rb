@@ -17,22 +17,21 @@
 #
 
 require 'chef/knife/cloud/list_resource_command'
-require 'chef/knife/vchs_helpers'
-require 'chef/knife/cloud/vchs_service_options'
+require 'chef/knife/vcair_helpers'
+require 'chef/knife/cloud/vcair_service_options'
 
 class Chef
   class Knife
     class Cloud
-      class VchsImageList < ResourceListCommand
-        include VchsHelpers
-        include VchsServiceOptions
+      class VcairImageList < ResourceListCommand
+        include VcairHelpers
+        include VcairServiceOptions
 
-        banner "knife vchs image list (options)"
+        banner "knife vcair image list (options)"
 
         def query_resource
-          catalogs = @service.connection.organizations.get_by_name(Chef::Config[:knife][:vchs_org]).catalogs
           images = []
-          catalogs.each do |catalog|
+          org.catalogs.each do |catalog|
             images << catalog.catalog_items.all
           end
           images.flatten
