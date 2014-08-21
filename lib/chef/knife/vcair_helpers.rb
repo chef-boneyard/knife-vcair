@@ -133,11 +133,35 @@ class Chef
           vm.ip_address
         end
 
-        def validate!
-          # FIXME: validation is broken atm
-          return true
-          super(:vchs_username, :vchs_password, :vchs_api_url)
+        def config_value(key)
+          key = key.to_sym
+          Chef::Config[:knife][key] || config[key]
         end
+        
+        def get_id(value)
+          value['id']
+        end
+
+        def msg_pair(label, value, color=:cyan)
+          if value && !value.to_s.empty?
+            puts "#{ui.color(label, color)}: #{value}"
+          end
+        end
+        
+        def validate!(keys=[:vcair_username, :vcair_password, :vcair_host, :vcair_org, :vcair_api_version])
+          errors = []
+          keys.each do |k|
+            pretty_key = k.to_s.gsub(/_/, ' ').gsub(/\w+/){ |w| (w =~ /(ssh)/i) ? w.upcase  : w.capitalize }
+            if config_value(k).nil?
+              errors << "You did not provide a valid '#{pretty_key}' value. Please set knife[:#{k}] in your knife.rb or pass as an option."
+            end
+          end
+          
+          if errors.each{|e| ui.error(e)}.any?
+            exit 1
+          end
+        end
+        
       end
     end
   end
