@@ -36,9 +36,13 @@ class Chef
           vdc = @service.connection.organizations.get_by_name(Chef::Config[:knife][:vchs_org]).vdcs.first
           @name_args.each do |server_name|
             vapp = vdc.vapps.get_by_name(server_name)
-            vapp.power_off
-            vapp.undeploy
-            vapp.destroy
+            if vapp
+              vapp.power_off
+              vapp.undeploy
+              vapp.destroy
+            else
+              ui.warn("No VApp named '#{server_name}' was found.")
+            end
             delete_from_chef(server_name)
           end
         end
