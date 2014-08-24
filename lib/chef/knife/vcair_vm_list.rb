@@ -1,5 +1,6 @@
 #
 # Author:: Matt Ray (<matt@getchef.com>)
+# Author:: Seth Thomas (<sthomas@getchef.com>)
 # Copyright:: Copyright (c) 2014 Chef Software, Inc.
 # License:: Apache License, Version 2.0
 #
@@ -17,33 +18,42 @@
 #
 
 require 'chef/knife/cloud/list_resource_command'
-require 'chef/knife/vchs_helpers'
-require 'chef/knife/cloud/vchs_service_options'
+require 'chef/knife/vcair_helpers'
+require 'chef/knife/cloud/vcair_service_options'
 
 class Chef
   class Knife
     class Cloud
-      class VchsImageList < ResourceListCommand
-        include VchsHelpers
-        include VchsServiceOptions
+      class VcairVmList < ResourceListCommand
+        include VcairHelpers
+        include VcairServiceOptions
 
-        banner "knife vchs image list (options)"
+        banner "knife vcair vm list (options)"
 
         def query_resource
-          catalogs = @service.connection.organizations.get_by_name(Chef::Config[:knife][:vchs_org]).catalogs
-          images = []
-          catalogs.each do |catalog|
-            images << catalog.catalog_items.all
+          vms = []
+          vdc.vapps.all.each do |vapp|
+            vms << vapp.vms.all
           end
-          images.flatten
+          vms.flatten
         end
 
         def before_exec_command
           @columns_with_info = [
+            {:label => 'vAPP', :key => 'vapp_name'},
             {:label => 'Name', :key => 'name'},
-            {:label => 'Description', :key => 'description'}
+            {:label => 'IP', :key => 'ip_address'},
+            {:label => 'CPU', :key => 'cpu'},
+            {:label => 'Memory', :key => 'memory'},
+            {:label => 'OS', :key => 'operating_system'},
+            {:label => 'Owner', :key => 'vapp', :value_callback => method(:owner) },
+            {:label => 'Status', :key => 'status'}
           ]
-          @sort_by_field = "name"
+          @sort_by_field = 'vapp_name'
+        end
+
+        def owner(vapp)
+          vapp.owner[0][:name]
         end
 
       end

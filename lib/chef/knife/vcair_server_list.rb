@@ -1,5 +1,5 @@
 #
-# Author:: Matt Ray (<matt@getchef.com>)
+# Author:: Seth Thomas (<sthomas@getchef.com>)
 # Copyright:: Copyright (c) 2014 Chef Software, Inc.
 # License:: Apache License, Version 2.0
 #
@@ -16,16 +16,16 @@
 # limitations under the License.
 #
 
-require 'chef/knife/vchs_vm_delete'
-require 'chef/knife/cloud/vchs_service_options'
+require 'chef/knife/vcair_vm_list'
+require 'chef/knife/cloud/vcair_service_options'
 
 class Chef
   class Knife
     class Cloud
-      class VchsServerDelete < VchsVmDelete
-        include VchsServiceOptions
+      class VcairServerList < VcairVmList
+        include VcairServiceOptions
 
-        banner "knife vchs server delete INSTANCEID [INSTANCEID] (options)"
+        banner "knife vcair server list (options)"
 
       end
     end

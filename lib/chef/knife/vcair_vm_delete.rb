@@ -18,27 +18,30 @@
 
 require 'chef/knife/cloud/server/delete_options'
 require 'chef/knife/cloud/server/delete_command'
-require 'chef/knife/cloud/vchs_service'
-require 'chef/knife/cloud/vchs_service_options'
-require 'chef/knife/vchs_helpers'
+require 'chef/knife/cloud/vcair_service'
+require 'chef/knife/cloud/vcair_service_options'
+require 'chef/knife/vcair_helpers'
 
 class Chef
   class Knife
     class Cloud
-      class VchsVmDelete < ServerDeleteCommand
+      class VcairVmDelete < ServerDeleteCommand
         include ServerDeleteOptions
-        include VchsServiceOptions
-        include VchsHelpers
+        include VcairServiceOptions
+        include VcairHelpers
 
-        banner "knife vchs vm delete INSTANCEID [INSTANCEID] (options)"
+        banner "knife vcair vm delete INSTANCEID [INSTANCEID] (options)"
 
         def execute_command
-          vdc = @service.connection.organizations.get_by_name(Chef::Config[:knife][:vchs_org]).vdcs.first
           @name_args.each do |server_name|
             vapp = vdc.vapps.get_by_name(server_name)
-            vapp.power_off
-            vapp.undeploy
-            vapp.destroy
+            if vapp
+              vapp.power_off
+              vapp.undeploy
+              vapp.destroy
+            else
+              ui.warn("No VApp named '#{server_name}' was found.")
+            end
             delete_from_chef(server_name)
           end
         end

@@ -17,20 +17,21 @@
 #
 
 require 'chef/knife/cloud/list_resource_command'
-require 'chef/knife/vchs_helpers'
-require 'chef/knife/cloud/vchs_service_options'
+require 'chef/knife/vcair_helpers'
+require 'chef/knife/cloud/vcair_service_options'
 
 class Chef
   class Knife
     class Cloud
-      class VchsIpList < ResourceListCommand
-        include VchsHelpers
-        include VchsServiceOptions
+      class VcairIpList < ResourceListCommand
+        include VcairHelpers
+        include VcairServiceOptions
 
-        banner "knife vchs ip list (options)"
+        banner "knife vcair ip list (options)"
 
         def query_resource
-          @service.connection.organizations.get_by_name(Chef::Config[:knife][:vchs_org]).networks
+          # TODO: this doesn't work yet, this in inside the routers
+          org.networks
         end
 
         def before_exec_command

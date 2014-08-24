@@ -11,16 +11,16 @@ task :default => :all
 task :all => [:spec, :uninstall, :install]
 
 # Packaging
-GEM_NAME = "knife-vchs"
-require File.dirname(__FILE__) + '/lib/knife-vchs/version'
-spec = eval(File.read("knife-vchs.gemspec"))
+GEM_NAME = "knife-vcair"
+require File.dirname(__FILE__) + '/lib/knife-vcair/version'
+spec = eval(File.read("knife-vcair.gemspec"))
 Gem::PackageTask.new(spec) do |pkg|
   pkg.gem_spec = spec
 end
 
-desc "uninstall #{GEM_NAME}-#{Knife::Vchs::VERSION}.gem from system..."
+desc "uninstall #{GEM_NAME}-#{Knife::Vcair::VERSION}.gem from system..."
 task :uninstall do
-  sh %{gem uninstall #{GEM_NAME} -x -v #{Knife::Vchs::VERSION} }
+  sh %{gem uninstall #{GEM_NAME} -x -v #{Knife::Vcair::VERSION} }
 end
 
 # rspec
