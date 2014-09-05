@@ -106,17 +106,16 @@ Assumptions:
  * a routed network with a default SNAT rule allowing internet and DNS
  * a firewall rule allowing that network to reach internet
 
-**TODO** Allow specifying (possibly multiple) networks in server create
-         Rather than just searching for one that ends in 'routed'
-**TODO** Allow specifying nat setup / external IPs
-**TODO** Allow specifying catalog item by name OR id, public or private
-**TODO** Automatically image_os_type / bootstrap_protocol default basode on template
-         default to linux/ssh
-**TODO** See if windows images can be updated to set password correctly when set via the vchs API
-**TODO** See if Linux images / API can be updated to use ssh keys
-**TODO** Add support for admin_auto_logon_* to fog, and get windows/linux images updated to respect
-**TODO** Update knife-cloud to limit hostnames to 15 characters (windows doesn't like long names)
-**TODO** Support allocation modes other than DHCP, including manual
+**TODO**
+ * Allow specifying (possibly multiple) networks in server create
+   - Rather than just searching for one that ends in 'routed'
+ * Allow specifying nat setup / external IPs
+ * Allow specifying catalog item by name OR id, public or private
+ * Automatically image_os_type / bootstrap_protocol default basode on template default to linux/ssh
+ * See if windows images can be updated to set password correctly when set via the vchs API
+ * See if Linux images / API can be updated to use ssh keys
+ * Add support for `admin_auto_logon_*` to fog, and get windows/linux images updated to respect
+ * Support IP allocation modes other than DHCP, including manual
 
 ## knife vcair server delete OR knife vcair vm delete ##
 
