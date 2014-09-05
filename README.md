@@ -9,19 +9,14 @@ Please refer to the [CHANGELOG](CHANGELOG.md) for version history and known issu
 
 ## Current Source Build Instructions: ##
 
-This plugin currently depends on the unreleased knife-cloud gem. To install it check out the source from https://github.com/opscode/knife-cloud. To install it, run:
-
-    $ gem build knife-cloud.gemspec
-    $ gem install knife-cloud-0.0.1.gem
-
 Then build and install this gem, run:
 
     $ gem build knife-vcair.gemspec
-    $ gem install knife-vcair-0.1.0.gem
+    $ gem install knife-vcair-0.6.X.gem
 
 or if you are using the Chef Development Kit (Chef DK), to install it run:
 
-    $ chef gem install knife-vcair-0.1.0.gem
+    $ chef gem install knife-vcair-0.X.0.gem
 
 ## Future Rubygems Instructions: ##
 
@@ -35,14 +30,18 @@ If you are using the Chef Development Kit (Chef DK), to install it run:
 
 # Configuration #
 
-In order to communicate with an vcair API you will need to tell Knife your vcair API endpoint, username, password and organization. The easiest way to accomplish this is to create these entries in your `knife.rb` file:
+In order to communicate with an vcair API you will need to tell Knife
+your vcair API endpoint, username, password and organization. The
+easiest way to accomplish this is to create these entries in your
+`knife.rb` file:
 
     knife[:vcair_api_url] = 'vcair.example.com'
     knife[:vcair_username] = 'Your vcair username'
     knife[:vcair_password] = 'Your vcair password'
     knife[:vcair_org] = 'Your vcair organization'
 
-If your knife.rb file will be checked into a SCM system (ie readable by others) you may want to read the values from environment variables.
+If your knife.rb file will be checked into a SCM system (ie readable
+by others) you may want to read the values from environment variables.
 
     knife[:vcair_api_url] = "#{ENV['VCAIR_API_URL']}"
     knife[:vcair_username] = "#{ENV['VCAIR_USERNAME']}"
@@ -51,7 +50,15 @@ If your knife.rb file will be checked into a SCM system (ie readable by others) 
 
 ## VMware's vcair ##
 
-If you are using VMware's hosted vcair the API URL is found by logging into the https://vchs.vmware.com, and clicking on your Dashboard's Virtual Data Center. On the right under "Related Links" click on the "vCloud Director API URL" and copy that value. It should look something like `https://p3v11-vcd.vchs.vmware.com:443/cloud/org/M511664989-4904/` From this we will take our base API URL `p3v11-vcd.vchs.vmware.com` and get our organization `M511664989-4904` that is appended to our https://vchs.vmware.com login, giving us the values:
+If you are using VMware's hosted vcair the API URL is found by logging
+into the https://vchs.vmware.com, and clicking on your Dashboard's
+Virtual Data Center. On the right under "Related Links" click on the
+"vCloud Director API URL" and copy that value. It should look
+something like
+`https://p3v11-vcd.vchs.vmware.com:443/cloud/org/M511664989-4904/`
+From this we will take our base API URL `p3v11-vcd.vchs.vmware.com`
+and get our organization `M511664989-4904` that is appended to our
+https://vchs.vmware.com login, giving us the values:
 
     knife[:vcair_api_url] = 'p3v11-vcd.vchs.vmware.com'
     knife[:vcair_username] = 'user@somedomain.com
@@ -60,7 +67,9 @@ If you are using VMware's hosted vcair the API URL is found by logging into the 
 
 # knife vcair subcommands #
 
-This plugin provides the following Knife subcommands. Specific command options can be found by invoking the subcommand with a `--help` option.
+This plugin provides the following Knife subcommands. Specific command
+options can be found by invoking the subcommand with a `--help`
+option.
 
 ## knife vcair server create OR knife vcair vm create ##
 
@@ -72,27 +81,49 @@ knife vcair server create \
   --winrm-password Password1 \
   --image W2K12-STD-64BIT \
   --bootstrap-protocol winrm \
-  --customization-script [./install-winrm-vcair.bat](https://github.com/vulk/knife-vcair/blob/server-create/install-winrm-vcair-example.bat) \
+  --customization-script ./install-winrm-vcair.bat \
   --vcpus 4 \
   --memory 4096
 ```
-The windows example requires a custom install script to setup winrm, and set/change the initial password without using the web console.
-A working example install-winrm-vcair-example.bat is included in this repo.
 
-Linux example: 
+The windows example requires a custom install script to setup winrm,
+and set/change the initial password without using the web console.  A
+working example
+[./install-winrm-vcair-example.bat](https://github.com/vulk/knife-vcair/blob/server-create/install-winrm-vcair-example.bat)
+is included in this repo.
+
+
+Linux example:
 ```
 knife vcair server create --ssh-password 'randompass' --image CentOS64-64bit
 ```
-The Linux images require you pass the ssh-password. Ssh public keys are not supported yet.
+
+The Linux images require you pass the ssh-password. Ssh public keys
+are not supported yet.
 
 Assumptions:
  * each VApp will only contain one VM.
  * a routed network with a default SNAT rule allowing internet and DNS
  * a firewall rule allowing that network to reach internet
 
+**TODO** Allow specifying (possibly multiple) networks in server create
+         Rather than just searching for one that ends in 'routed'
+**TODO** Allow specifying nat setup / external IPs
+**TODO** Allow specifying catalog item by name OR id, public or private
+**TODO** Automatically image_os_type / bootstrap_protocol default basode on template
+         default to linux/ssh
+**TODO** See if windows images can be updated to set password correctly when set via the vchs API
+**TODO** See if Linux images / API can be updated to use ssh keys
+**TODO** Add support for admin_auto_logon_* to fog, and get windows/linux images updated to respect
+**TODO** Update knife-cloud to limit hostnames to 15 characters (windows doesn't like long names)
+**TODO** Support allocation modes other than DHCP, including manual
+
 ## knife vcair server delete OR knife vcair vm delete ##
 
-Delete a vcair vAPP. `knife vcair vm delete` is the same command if the term 'vm' is preferred over 'server'. **PLEASE NOTE** - this does not delete the associated node and client objects from the Chef server without using the `-P` option to purge the client.
+Delete a vcair vAPP. `knife vcair vm delete` is the same command if
+the term 'vm' is preferred over 'server'. **PLEASE NOTE** - this does
+not delete the associated node and client objects from the Chef server
+without using the `-P` option to purge the client.
 
 ## knife vcair server list OR knife vcair vm list ##
 
@@ -121,7 +152,7 @@ Lists the networks available to the current vcair organization.
 
 # Notes #
 
-Ubuntu images seems to not use customizaton (script nor setting password) and default to not allowing ssh w/ password even if known
+The 20140619 Ubuntu images seems to not use customizaton (script nor setting password) and default to not allowing ssh w/ password even if known.
 
 ```ruby
 template = public_catalog.catalog_items.get_by_name('Ubuntu Server 12.04 LTS (amd64 20140619)'
