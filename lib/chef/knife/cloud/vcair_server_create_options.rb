@@ -26,7 +26,7 @@ class Chef
        def self.included(includer)
          includer.class_eval do
            include ServerCreateOptions
-           
+
            # availble in knife.rb -short
            option :vcair_customization_script,
            :long => "--customization-script SCRIPTFILE",
