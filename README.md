@@ -35,7 +35,7 @@ your vcair API endpoint, username, password and organization. The
 easiest way to accomplish this is to create these entries in your
 `knife.rb` file:
 
-    knife[:vcair_api_url] = 'vcair.example.com'
+    knife[:vcair_api_host] = 'vcair.example.com'
     knife[:vcair_username] = 'Your vcair username'
     knife[:vcair_password] = 'Your vcair password'
     knife[:vcair_org] = 'Your vcair organization'
@@ -43,7 +43,7 @@ easiest way to accomplish this is to create these entries in your
 If your knife.rb file will be checked into a SCM system (ie readable
 by others) you may want to read the values from environment variables.
 
-    knife[:vcair_api_url] = "#{ENV['VCAIR_API_URL']}"
+    knife[:vcair_api_host] = "#{ENV['VCAIR_API_URL']}"
     knife[:vcair_username] = "#{ENV['VCAIR_USERNAME']}"
     knife[:vcair_password] = "#{ENV['VCAIR_PASSWORD']}"
     knife[:vcair_org] = "#{ENV['VCAIR_ORG']}"
@@ -60,7 +60,7 @@ From this we will take our base API URL `p3v11-vcd.vchs.vmware.com`
 and get our organization `M511664989-4904` that is appended to our
 https://vchs.vmware.com login, giving us the values:
 
-    knife[:vcair_api_url] = 'p3v11-vcd.vchs.vmware.com'
+    knife[:vcair_api_host] = 'p3v11-vcd.vchs.vmware.com'
     knife[:vcair_username] = 'user@somedomain.com
     knife[:vcair_password] = 'VCAIRSECRET'
     knife[:vcair_org] = 'M511664989-4904'
