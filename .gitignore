@@ -84,3 +84,5 @@ Procfile.dev
 public/import/
 tags
 *~
+
+Gemfile.lock
