@@ -36,11 +36,11 @@ class Chef
         def execute_command
           instantiate
           update_customization
-          if config_value(:vcpus)
-            vm.cpus = config_value(:vcpus)
+          if config_value(:vcair_cpus)
+            vm.cpu = config_value(:vcair_cpus)
           end
-          if config_value(:memory)
-            vm.memory = config_value(:memory)
+          if config_value(:vcair_memory)
+            vm.memory = config_value(:vcair_memory)
           end
           update_network
           vm.power_on
