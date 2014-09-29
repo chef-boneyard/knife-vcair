@@ -8,8 +8,7 @@ group :development do
   gem 'knife-windows', :git => 'https://github.com/opscode/knife-windows.git'
 
   gem 'rspec-instafail'
-  gem 'debugger'
-  gem 'pry-debugger'
+  gem 'pry-byebug'
   gem 'pry-stack_explorer'
   gem 'dotenv'
 end
