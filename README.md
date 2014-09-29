@@ -82,22 +82,31 @@ knife vcair server create \
   --image W2K12-STD-64BIT \
   --bootstrap-protocol winrm \
   --customization-script ./install-winrm-vcair.bat \
-  --vcpus 4 \
-  --memory 4096
+  --cpus 4 \
+  --memory 4096 \
+  --node-name windows2012
 ```
 
 The windows example requires a custom install script to setup winrm,
 and set/change the initial password without using the web console.  A
 working example
 [./install-winrm-vcair-example.bat](https://github.com/vulk/knife-vcair/blob/server-create/install-winrm-vcair-example.bat)
-is included in this repo.
+is included in this repo. Note: Windows doesn't support hostnames longer than 15 characters.
 
 
 Linux example:
 ```
-knife vcair server create --ssh-password 'randompass' --image CentOS64-64bit
+knife vcair server create \
+  --ssh-password Password1 \
+  --image "CentOS64-64bit" \
+  --customization-script ./install-linux-vcair.sh \
+  --cpus 4 \
+  --memory 4096 \
+  --node-name centos64
 ```
 
+The Linux example requires a custom script to set DNS servers for obtaining chef-client via omnibus.
+This also includes a workaround for Ubuntu images to allow password authentication via SSH.
 The Linux images require you pass the ssh-password. Ssh public keys
 are not supported yet.
 
