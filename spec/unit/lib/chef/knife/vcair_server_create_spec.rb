@@ -78,7 +78,7 @@ describe Chef::Knife::Cloud::VcairServerCreate do
       :id => "id",
       :network => {:network_name => "vcair_network", :network_mode => "POOL" },
       :password => 'password',
-      :cpus => 'cpus',
+      :cpu => 'cpu',
       :memory => 'memory'
     )
   end
@@ -110,9 +110,9 @@ describe Chef::Knife::Cloud::VcairServerCreate do
   #     # Fog::Vcloud::Compute.should_receive(:new).and_return(@vcair_connection)
   #     @new_network = {:IpAddress => "IpAddress"}
   #     @new_server.stub(:network).and_return(@new_network)
-  #     @knife_vcair_create.config[:vcpus] = 'vcpus'
-  #     @knife_vcair_create.config[:memory] = 'memory'
-  #     @new_server.should_receive(:cpus=).and_return(@new_server.cpus)
+  #     @knife_vcair_create.config[:vcair_cpus] = 'cpu'
+  #     @knife_vcair_create.config[:vcair_memory] = 'memory'
+  #     @new_server.should_receive(:cpu=).and_return(@new_server.cpu)
   #     @new_server.should_receive(:memory=).and_return(@new_server.memory)
   #     @new_server.should_receive(:save).exactly(3).times
 

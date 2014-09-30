@@ -35,7 +35,7 @@ your vcair API endpoint, username, password and organization. The
 easiest way to accomplish this is to create these entries in your
 `knife.rb` file:
 
-    knife[:vcair_api_url] = 'vcair.example.com'
+    knife[:vcair_api_host] = 'vcair.example.com'
     knife[:vcair_username] = 'Your vcair username'
     knife[:vcair_password] = 'Your vcair password'
     knife[:vcair_org] = 'Your vcair organization'
@@ -43,7 +43,7 @@ easiest way to accomplish this is to create these entries in your
 If your knife.rb file will be checked into a SCM system (ie readable
 by others) you may want to read the values from environment variables.
 
-    knife[:vcair_api_url] = "#{ENV['VCAIR_API_URL']}"
+    knife[:vcair_api_host] = "#{ENV['VCAIR_API_URL']}"
     knife[:vcair_username] = "#{ENV['VCAIR_USERNAME']}"
     knife[:vcair_password] = "#{ENV['VCAIR_PASSWORD']}"
     knife[:vcair_org] = "#{ENV['VCAIR_ORG']}"
@@ -60,7 +60,7 @@ From this we will take our base API URL `p3v11-vcd.vchs.vmware.com`
 and get our organization `M511664989-4904` that is appended to our
 https://vchs.vmware.com login, giving us the values:
 
-    knife[:vcair_api_url] = 'p3v11-vcd.vchs.vmware.com'
+    knife[:vcair_api_host] = 'p3v11-vcd.vchs.vmware.com'
     knife[:vcair_username] = 'user@somedomain.com
     knife[:vcair_password] = 'VCAIRSECRET'
     knife[:vcair_org] = 'M511664989-4904'
@@ -82,8 +82,9 @@ knife vcair server create \
   --image W2K12-STD-64BIT \
   --bootstrap-protocol winrm \
   --customization-script ./install-winrm-vcair.bat \
-  --vcpus 4 \
-  --memory 4096
+  --cpus 4 \
+  --memory 4096 \
+  --node-name windows2012
 ```
 
 The windows example requires a custom install script to setup winrm,
@@ -95,9 +96,17 @@ is included in this repo.
 
 Linux example:
 ```
-knife vcair server create --ssh-password 'randompass' --image CentOS64-64bit
+knife vcair server create \
+  --ssh-password Password1 \
+  --image "CentOS64-64bit" \
+  --customization-script ./install-linux-vcair.sh \
+  --cpus 4 \
+  --memory 4096 \
+  --node-name centos64
 ```
 
+The Linux example requires a custom script to set DNS servers for obtaining chef-client via omnibus.
+This also includes a workaround for Ubuntu images to allow password authentication via SSH.
 The Linux images require you pass the ssh-password. Ssh public keys
 are not supported yet.
 
