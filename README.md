@@ -91,7 +91,7 @@ The windows example requires a custom install script to setup winrm,
 and set/change the initial password without using the web console.  A
 working example
 [./install-winrm-vcair-example.bat](https://github.com/vulk/knife-vcair/blob/server-create/install-winrm-vcair-example.bat)
-is included in this repo. Note: Windows doesn't support hostnames longer than 15 characters.
+is included in this repo.
 
 
 Linux example:
