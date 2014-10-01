@@ -14,6 +14,9 @@ fi
 
 if test "$platform" = "ubuntu"; then
         sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+        sed -i 's/dns.*/dns-nameservers 8.8.8.8 8.8.4.4/g' /etc/network/interfaces
 fi
 
-echo -e "nameserver 8.8.8.8\nnameserver 8.8.4.4" >> /etc/resolv.conf
+if test "$platform" = "centos"; then
+	printf "nameserver 8.8.8.8\nnameserver 8.8.4.4" >> /etc/resolv.conf
+fi
