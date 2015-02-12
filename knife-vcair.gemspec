@@ -20,9 +20,10 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_dependency "fog", ">= 1.23"
-  s.add_dependency "chef", "~> 11.0"
-  s.add_dependency "knife-cloud", "~> 1.0.0"
-  s.add_dependency "knife-windows"
+  s.add_dependency "knife-cloud", ">= 1.0.1"
+  s.add_dependency "knife-windows", ">= 0.8.3"
+
+  s.add_development_dependency "chef", "< 12"
   s.add_development_dependency 'rspec',         '~> 2.14'
   s.add_development_dependency 'rake'#,          '~> 10.1'
   s.add_development_dependency 'guard-rspec', ["~> 4.2"]
