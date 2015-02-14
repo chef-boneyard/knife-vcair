@@ -160,12 +160,13 @@ Lists the networks available to the current vcair organization.
 
 # Notes #
 
-The 20140619 Ubuntu images seems to not use customizaton (script nor setting password) and default to not allowing ssh w/ password even if known.
+* The 20140619 Ubuntu images seems to not use customizaton (script nor setting password) and default to not allowing ssh w/ password even if known.
 
 ```ruby
 template = public_catalog.catalog_items.get_by_name('Ubuntu Server 12.04 LTS (amd64 20140619)'
 ```
 
+* An [example](https://gist.github.com/jicowan/e19fcbea08a9c6e2b1b6) of a [custom bootstrap template (distro)](https://docs.chef.io/knife_bootstrap.html#custom-templates) from @jicowan
 
 # License #
 
