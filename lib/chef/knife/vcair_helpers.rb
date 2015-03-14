@@ -28,9 +28,12 @@ class Chef
         end
         
         def net
-          # TODO make this work with multiple networks
-          # TODO: allow specifying network name rather than searching for Routed
-          @net ||= org.networks.find { |n| n if n.name.match("routed$") }
+          if config_value(:vcair_net)
+            @net ||= org.networks.get_by_name(config_value(:vcair_net))
+          else
+            # Grab first non-isolated (bridged, natRouted) network
+            @net ||= org.networks.find { |n| n if !n.fence_mode.match("isolated") }
+          end
         end
 
         def template
@@ -51,7 +54,7 @@ class Chef
 
         def network_config
           @network_config ||= vapp.network_config.find do |n|
-            n if n[:networkName].match("routed$")
+            n if n[:networkName].match(net.name)
           end
         end
         
