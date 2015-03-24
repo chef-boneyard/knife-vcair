@@ -75,6 +75,8 @@ option.
 
 Instanciate a new VApp+VM from a Template from one of the available Catalogs.
 
+**NOTE:** If `--vcair-net NETWORK` is not provided, the first non-isolated (i.e. natRouted or bridged) network is chosen
+
 Windows example:
 ```
 knife vcair server create \
@@ -84,7 +86,8 @@ knife vcair server create \
   --customization-script ./install-winrm-vcair.bat \
   --cpus 4 \
   --memory 4096 \
-  --node-name windows2012
+  --node-name windows2012 \
+  --vcair-net M511664989-4904-default-routed
 ```
 
 The windows example requires a custom install script to setup winrm,
@@ -102,7 +105,8 @@ knife vcair server create \
   --customization-script ./install-linux-vcair.sh \
   --cpus 4 \
   --memory 4096 \
-  --node-name centos64
+  --node-name centos64 \
+  --vcair-net M511664989-4904-default-routed
 ```
 
 The Linux example requires a custom script to set DNS servers for obtaining chef-client via omnibus.
@@ -170,13 +174,13 @@ template = public_catalog.catalog_items.get_by_name('Ubuntu Server 12.04 LTS (am
 
 # License #
 
-Author:: Matt Ray (<matt@getchef.com>)
+Author:: Matt Ray (<matt@chef.io>)
 
-Author:: Seth Thomas (<sthomas@getchef.com>)
+Author:: Seth Thomas (<sthomas@chef.io>)
 
 Author:: Chris McClimans (<c@vulk.co>)
 
-Copyright:: Copyright (c) 2014 Chef Software, Inc.
+Copyright:: Copyright (c) 2015 Chef Software, Inc.
 
 License:: Apache License, Version 2.0
 

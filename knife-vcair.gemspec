@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.platform    = Gem::Platform::RUBY
   s.has_rdoc = true
   s.extra_rdoc_files = ["README.md", "LICENSE" ]
-  s.authors     = ["Matt Ray", "Chris McClimans", "Taylor Carpenter", "Wavell Watson"]
-  s.email       = ["matt@getchef.com", "wolfpack@vulk.co"]
+  s.authors     = ["Matt Ray", "Chris McClimans", "Taylor Carpenter", "Wavell Watson", "eth Thomas"]
+  s.email       = ["matt@chef.io", "wolfpack@vulk.co", "sthomas@chef.io"]
   s.homepage    = "https://github.com/chef-partners/knife-vcair"
   s.summary     = %q{VMware vcair support for Chef's Knife command}
   s.description = s.summary
