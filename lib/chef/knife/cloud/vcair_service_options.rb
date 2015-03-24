@@ -51,19 +51,19 @@ class Chef
            :long => "--vcair-username USERNAME",
            :description => "Your VCAIR username",
            :proc => Proc.new { |username| Chef::Config[:knife][:vcair_username] = username }
-           
+
            option :vcair_password,
            :short => "-K PASSWORD",
            :long => "--vcair-password PASSWORD",
            :description => "Your VCAIR password",
            :proc => Proc.new { |key| Chef::Config[:knife][:vcair_password] = key }
-           
+
            option :vcair_vdc,
            :long => "--vcair-vdc VDCNAME",
            :description => "Your VCAIR VDC",
            :default => nil,
            :proc => Proc.new { |key| Chef::Config[:knife][:vcair_vdc] = key }
-           
+
            option :vcair_show_progress,
            :long => "--vcair-show-progress BOOL",
            :description => "Show VCAIR API Progress",

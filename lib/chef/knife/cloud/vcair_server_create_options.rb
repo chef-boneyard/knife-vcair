@@ -47,6 +47,12 @@ class Chef
            :description => "Defines the number of MB of memory. [512,1024,1536,2048,4096,8192,12288,16384]",
            :proc => Proc.new { |o| Chef::Config[:knife][:vcair_memory] = o }
 
+           option :vcair_net,
+           :long => "--vcair-net NETWORKNAME",
+           :description => "Your VCAIR NETWORK",
+           :default => nil,
+           :proc => Proc.new { |key| Chef::Config[:knife][:vcair_net] = key }
+
             # TODO - Define your cloud specific create server options here. Example.
             # Vcair Server create params.
             # option :private_network,

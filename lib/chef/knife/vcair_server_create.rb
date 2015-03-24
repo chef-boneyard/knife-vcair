@@ -3,7 +3,6 @@
 # Copyright:: 
 #
 
-require 'pry'
 require 'chef/knife/cloud/server/create_command'
 require 'chef/knife/vcair_helpers'
 require 'chef/knife/cloud/vcair_server_create_options'
@@ -141,12 +140,16 @@ https://raw.githubusercontent.com/vulk/knife-vchs/server-create/install-winrm-vc
         private
 
         def instantiate
-          node_name = config_value(:chef_node_name)
-          template.instantiate(
-                               node_name,
-                               vdc_id: vdc.id,
-                               network_id: net.id,
-                               description: "id:#{node_name}")
+          begin
+            node_name = config_value(:chef_node_name)
+            template.instantiate(
+                                 node_name,
+                                 vdc_id: vdc.id,
+                                 network_id: net.id,
+                                 description: "id:#{node_name}")
+          rescue CloudExceptions::ServerCreateError => e
+            raise e
+          end
         end
         
         def update_customization
@@ -188,7 +191,7 @@ https://raw.githubusercontent.com/vulk/knife-vchs/server-create/install-winrm-vc
         def update_network
           ## TODO: allow user to specify network to connect to (see above net used)
           # Define network connection for vm based on existing routed network
-          nc = vapp.network_config.find { |n| n if n[:networkName].match("routed$") }
+          nc = vapp.network_config.find { |n| n if n[:networkName].match(net.name) }
           networks_config = [nc]
           section = {PrimaryNetworkConnectionIndex: 0}
           section[:NetworkConnection] = networks_config.compact.each_with_index.map do |network, i|
