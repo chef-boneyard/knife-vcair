@@ -140,12 +140,16 @@ https://raw.githubusercontent.com/vulk/knife-vchs/server-create/install-winrm-vc
         private
 
         def instantiate
-          node_name = config_value(:chef_node_name)
-          template.instantiate(
-                               node_name,
-                               vdc_id: vdc.id,
-                               network_id: net.id,
-                               description: "id:#{node_name}")
+          begin
+            node_name = config_value(:chef_node_name)
+            template.instantiate(
+                                 node_name,
+                                 vdc_id: vdc.id,
+                                 network_id: net.id,
+                                 description: "id:#{node_name}")
+          rescue CloudExceptions::ServerCreateError => e
+            raise e
+          end
         end
         
         def update_customization

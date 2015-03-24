@@ -64,12 +64,6 @@ class Chef
            :default => nil,
            :proc => Proc.new { |key| Chef::Config[:knife][:vcair_vdc] = key }
 
-           option :vcair_net,
-           :long => "--vcair-net NETWORKNAME",
-           :description => "Your VCAIR NETWORK",
-           :default => nil,
-           :proc => Proc.new { |key| Chef::Config[:knife][:vcair_net] = key }
-
            option :vcair_show_progress,
            :long => "--vcair-show-progress BOOL",
            :description => "Show VCAIR API Progress",
