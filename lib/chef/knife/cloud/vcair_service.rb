@@ -27,6 +27,7 @@ class Chef
           Chef::Log.debug("vcair_username #{Chef::Config[:knife][:vcair_username]}")
           Chef::Log.debug("vcair_org #{Chef::Config[:knife][:vcair_org]}")
           Chef::Log.debug("vcair_api_host #{Chef::Config[:knife][:vcair_api_host]}")
+          Chef::Log.debug("vcair_api_path #{Chef::Config[:knife][:vcair_api_path]}")
           Chef::Log.debug("vcair_api_version #{Chef::Config[:knife][:vcair_api_version]}")
           Chef::Log.debug("vcair_show_progress #{Chef::Config[:knife][:vcair_show_progress]}")
 
@@ -42,7 +43,8 @@ class Chef
               :vcloud_director_password => Chef::Config[:knife][:vcair_password],
               :vcloud_director_host => Chef::Config[:knife][:vcair_api_host],
               :vcloud_director_api_version => Chef::Config[:knife][:vcair_api_version],
-              :vcloud_director_show_progress => false
+              :vcloud_director_show_progress => false,
+              :path => Chef::Config[:knife][:vcair_api_path]
             }
           }))
         end
@@ -50,7 +52,6 @@ class Chef
         def add_api_endpoint
           @auth_params.merge!({:vcair_api_host => Chef::Config[:knife][:vcair_api_host]}) unless Chef::Config[:knife][:api_endpoint].nil?
         end
-
       end
     end
   end

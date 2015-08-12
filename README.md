@@ -7,19 +7,6 @@ Please refer to the [CHANGELOG](CHANGELOG.md) for version history and known issu
 
 # Installation #
 
-## Current Source Build Instructions: ##
-
-Then build and install this gem, run:
-
-    $ gem build knife-vcair.gemspec
-    $ gem install knife-vcair-0.6.X.gem
-
-or if you are using the Chef Development Kit (Chef DK), to install it run:
-
-    $ chef gem install knife-vcair-0.X.0.gem
-
-## Future Rubygems Instructions: ##
-
 This plugin is distributed as a Ruby Gem. To install it, run:
 
     $ gem install knife-vcair
@@ -43,12 +30,12 @@ easiest way to accomplish this is to create these entries in your
 If your knife.rb file will be checked into a SCM system (ie readable
 by others) you may want to read the values from environment variables.
 
-    knife[:vcair_api_host] = "#{ENV['VCAIR_API_URL']}"
-    knife[:vcair_username] = "#{ENV['VCAIR_USERNAME']}"
-    knife[:vcair_password] = "#{ENV['VCAIR_PASSWORD']}"
-    knife[:vcair_org] = "#{ENV['VCAIR_ORG']}"
+    knife[:vcair_api_host] = ENV['VCAIR_API_URL']
+    knife[:vcair_username] = ENV['VCAIR_USERNAME']
+    knife[:vcair_password] = ENV['VCAIR_PASSWORD']
+    knife[:vcair_org] = ENV['VCAIR_ORG']
 
-## VMware's vcair ##
+## VMware vCloud Air - Subscription ##
 
 If you are using VMware's hosted vcair the API URL is found by logging
 into the https://vchs.vmware.com, and clicking on your Dashboard's
@@ -64,6 +51,22 @@ https://vchs.vmware.com login, giving us the values:
     knife[:vcair_username] = 'user@somedomain.com
     knife[:vcair_password] = 'VCAIRSECRET'
     knife[:vcair_org] = 'M511664989-4904'
+
+## VMware vCloud Air - OnDemand ##
+
+Your Org ID is commonly a UUID-formatted string and can be found in the URL
+after you log in to vCloud Air OnDemand (for example:
+https://us-virginia-1-4....?orgName=SOME_UUID_HERE) or it will be displayed
+next to your name in the upper-left corner of the vCloud Director web UI.  You
+can also ascertain your Org ID by following [these instructions](http://pubs.vmware.com/vca/index.jsp#com.vmware.vcloud.api.tenant.doc_511/GUID-D902143B-CF49-4508-99CA-2715B448F5E8.html).
+
+Additionally, you will need to override the API path as the API path between
+the subscription service and the OnDemand service are different.  You will need
+to set the following entry in your `knife.rb` file:
+
+    knife[:vcair_api_path] = '/api/compute/api'
+
+... or you may pass it in on the CLI using `--vcair-api-path`.
 
 # knife vcair subcommands #
 

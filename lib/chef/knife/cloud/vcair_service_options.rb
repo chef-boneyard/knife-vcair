@@ -39,7 +39,12 @@ class Chef
            :long => "--vcair-api-host HOST",
            :description => "The VCAIR API endpoint",
            :proc => Proc.new { |u| Chef::Config[:knife][:vcair_api_host] = u }
-           
+
+           option :vcair_api_path,
+           :long => '--vcair-api-path PATH',
+           :description => 'The API service endpoint path, if different from the default "/api"',
+           :proc => Proc.new { |path| Chef::Config[:knife][:vcair_api_path] = path}
+
            option :vcair_org,
            :short => "-O ORG",
            :long => "--vcair-org ORG",
@@ -68,7 +73,7 @@ class Chef
            :long => "--vcair-show-progress BOOL",
            :description => "Show VCAIR API Progress",
            :default => false
-           
+
           end
         end
       end
