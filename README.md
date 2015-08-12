@@ -30,10 +30,10 @@ easiest way to accomplish this is to create these entries in your
 If your knife.rb file will be checked into a SCM system (ie readable
 by others) you may want to read the values from environment variables.
 
-    knife[:vcair_api_host] = "#{ENV['VCAIR_API_URL']}"
-    knife[:vcair_username] = "#{ENV['VCAIR_USERNAME']}"
-    knife[:vcair_password] = "#{ENV['VCAIR_PASSWORD']}"
-    knife[:vcair_org] = "#{ENV['VCAIR_ORG']}"
+    knife[:vcair_api_host] = ENV['VCAIR_API_URL']
+    knife[:vcair_username] = ENV['VCAIR_USERNAME']
+    knife[:vcair_password] = ENV['VCAIR_PASSWORD']
+    knife[:vcair_org] = ENV['VCAIR_ORG']
 
 ## VMware vCloud Air - Subscription ##
 
