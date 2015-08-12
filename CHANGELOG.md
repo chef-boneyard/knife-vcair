@@ -1,3 +1,6 @@
+## 0.7.0
+* added a vcair_api_path option, necessary for when using vCloud Air OnDemand #28
+
 ## 0.6.1
 * Fixed network selection for creating servers #23
 * Update bootstrap scripts #17
