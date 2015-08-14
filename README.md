@@ -152,18 +152,6 @@ List the available vcair templates or images that may be used for deploying VMs.
 
 Lists the networks available to the current vcair organization.
 
-## knife vcair nat list ##
-
-**TODO** List the Network Address Translation (NAT) rules modifying the source/destination IP Addresses or packets arriving to and leaving from the vcair organization network.
-
-## knife vcair firewall list ##
-
-**TODO** The list of firewall rules configured for the current vcair organization network.
-
-## knife vcair ip list ##
-
-**TODO** The list of public IP Addresses provided and allocated for the current vcair organization network.
-
 
 # Notes #
 
