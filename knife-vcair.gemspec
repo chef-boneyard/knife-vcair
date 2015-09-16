@@ -19,14 +19,14 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_dependency "fog", ">= 1.23"
-  s.add_dependency "knife-cloud", ">= 1.0.1"
+  s.add_dependency "fog",           "~> 1.33"
+  s.add_dependency "knife-cloud",   ">= 1.0.1"
   s.add_dependency "knife-windows", ">= 0.8.3"
 
-  s.add_development_dependency 'chef', '>= 11.16.2', '< 12'
+  s.add_development_dependency 'chef'
   s.add_development_dependency 'rspec',         '~> 2.14'
   s.add_development_dependency 'rake',          '~> 10.1'
-  s.add_development_dependency 'guard-rspec', ["~> 4.2"]
+  s.add_development_dependency 'guard-rspec',   '~> 4.2'
   s.add_development_dependency 'activesupport'
 
   %w(rspec-core rspec-expectations rspec-mocks rspec_junit_formatter).each { |gem|
