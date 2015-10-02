@@ -1,3 +1,6 @@
+## 0.8.0
+* added better exception handling for looking up vCloud Air networks, including adding ability to specify the network by ID instead of name
+
 ## 0.7.0
 * added a vcair_api_path option, necessary for when using vCloud Air OnDemand #28
 
