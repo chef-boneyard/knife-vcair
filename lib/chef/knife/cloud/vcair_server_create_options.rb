@@ -49,9 +49,15 @@ class Chef
 
            option :vcair_net,
            :long => "--vcair-net NETWORKNAME",
-           :description => "Your VCAIR NETWORK",
+           :description => "vCloud Air Network Name",
            :default => nil,
            :proc => Proc.new { |key| Chef::Config[:knife][:vcair_net] = key }
+
+           option :vcair_net_id,
+           :long => "--vcair-net-id NETWORKNAME",
+           :description => "vCloud Air Network ID - take preference over --vcair-net",
+           :default => nil,
+           :proc => Proc.new { |key| Chef::Config[:knife][:vcair_net_id] = key }
 
             # TODO - Define your cloud specific create server options here. Example.
             # Vcair Server create params.
