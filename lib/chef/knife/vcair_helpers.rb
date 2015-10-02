@@ -13,7 +13,7 @@ class Chef
         def create_service_instance
           VcairService.new
         end
-        
+
         def org
           @org ||= @service.connection.organizations.get_by_name(
                      config_value(:vcair_org))
@@ -26,14 +26,32 @@ class Chef
             @vdc ||= org.vdcs.first
           end
         end
-        
+
         def net
-          if config_value(:vcair_net)
+          if config_value(:vcair_net_id)
+            Chef::Log.debug("Looking up network by ID: #{config_value(:vcair_net_id)}")
+            begin
+              @net ||= org.networks.get(config_value(:vcair_net_id))
+            rescue => e
+              raise "Unable to locate network ID #{config_value(:vcair_net_id)} -- #{e.message}"
+            end
+          elsif config_value(:vcair_net)
+            Chef::Log.debug("Looking up network by name: #{config_value(:vcair_net)}")
             @net ||= org.networks.get_by_name(config_value(:vcair_net))
           else
             # Grab first non-isolated (bridged, natRouted) network
+            Chef::Log.debug("No network specified, trying to locate one...")
             @net ||= org.networks.find { |n| n if !n.fence_mode.match("isolated") }
           end
+
+          raise "No network found - available networks: #{available_networks.join(', ')}" if @net.nil?
+
+          Chef::Log.debug("Using network #{@net.name} (#{@net.id})")
+          @net
+        end
+
+        def available_networks
+          org.networks.map { |network| "#{network.name} (#{network.id})"}
         end
 
         def template
@@ -43,11 +61,11 @@ class Chef
             cat.catalog_items.get_by_name(config_value(:image))
           end.compact.first
         end
-        
+
         def vapp
           @vapp ||= vdc.vapps.get_by_name(config_value(:chef_node_name))
         end
-        
+
         def vm
           @vm ||= vapp.vms.find {|v| v.vapp_name == config_value(:chef_node_name)}
         end
@@ -57,13 +75,13 @@ class Chef
             n if n[:networkName].match(net.name)
           end
         end
-        
+
 
         def config_value(key)
           key = key.to_sym
           Chef::Config[:knife][key] || config[key]
         end
-        
+
         def get_id(value)
           value['id']
         end
@@ -73,7 +91,7 @@ class Chef
             puts "#{ui.color(label, color)}: #{value}"
           end
         end
-        
+
         def validate!(keys=[:vcair_username, :vcair_password, :vcair_api_host, :vcair_org, :vcair_api_version])
           errors = []
           keys.each do |k|
@@ -82,12 +100,12 @@ class Chef
               errors << "You did not provide a valid '#{pretty_key}' value. Please set knife[:#{k}] in your knife.rb or pass as an option."
             end
           end
-          
+
           if errors.each{|e| ui.error(e)}.any?
             exit 1
           end
         end
-        
+
       end
     end
   end
