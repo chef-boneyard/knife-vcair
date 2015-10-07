@@ -55,11 +55,27 @@ class Chef
         end
 
         def template
+          return @template if @template
+
           # TODO: find by catalog item ID and/or NAME
           # TODO: add option to search just public and/or private catalogs
-          @template ||= org.catalogs.map do |cat|
-            cat.catalog_items.get_by_name(config_value(:image))
-          end.compact.first
+          Chef::Log.debug("Searching catalogs for image #{config_value(:image)}...")
+          org.catalogs.each do |catalog|
+            Chef::Log.debug("Searching catalog #{catalog.name}...")
+
+            images = catalog.catalog_items
+            @template = images.find { |image| image.name == config_value(:image) }
+
+            if @template.nil?
+              Chef::Log.debug("Image not found in catalog #{catalog.name} - possible images: #{images.map(&:name).join(', ')}")
+            else
+              Chef::Log.debug("Image #{@template.name} (#{template.id}) found in catalog #{catalog.name} - search complete.")
+              break
+            end
+          end
+
+          raise "Unable to locate image #{config_value(:image)} in any catalog" if @template.nil?
+          @template
         end
 
         def vapp

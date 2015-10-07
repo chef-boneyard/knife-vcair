@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
   s.add_dependency "fog",           "~> 1.33"
   s.add_dependency "knife-cloud",   ">= 1.0.1"
   s.add_dependency "knife-windows", ">= 0.8.3"
+  s.add_dependency "em-winrm", "~> 0.7.0"
 
   s.add_development_dependency 'chef'
   s.add_development_dependency 'rspec',         '~> 2.14'
