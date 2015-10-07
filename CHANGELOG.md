@@ -1,3 +1,7 @@
+## 0.9.0
+* pinned version of fog to < 2.x in anticipation of release
+* added better exception handling for looking up vCloud Air templates / images
+
 ## 0.8.0
 * added better exception handling for looking up vCloud Air networks, including adding ability to specify the network by ID instead of name
 
